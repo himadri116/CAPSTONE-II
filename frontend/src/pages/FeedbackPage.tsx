@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchFeedback, getApiErrorMessage, submitFeedback } from "../services/api";
 import type { FeedbackEntry } from "../types/prediction";
 
