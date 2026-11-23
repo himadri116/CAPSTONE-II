@@ -2,9 +2,10 @@ import csv
 import json
 import os
 from io import StringIO
+from typing import Optional
 
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 
@@ -16,11 +17,16 @@ from models.request_models import (
     GitRefListRequest,
     ExportReportRequest,
     FeedbackRequest,
+    GoogleAuthRequest,
+    SendOtpRequest,
+    VerifyOtpRequest,
 )
 from services.defect_prediction_pipeline import DefectPredictionPipeline
 from services.feedback_service import FeedbackService
 from services.prediction_job_service import PredictionJobService
 from services.prediction_history_service import PredictionHistoryService
+from services.auth_service import auth_service
+from services.mongo_service import mongo_service
 
 
 app = FastAPI(
@@ -65,6 +71,67 @@ def favicon():
         return FileResponse(favicon_path, media_type="image/png")
 
     return Response(status_code=204)
+
+
+# Authentication Dependency
+async def get_current_user(authorization: Optional[str] = Header(None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authentication required")
+    token = authorization.split(" ")[1]
+    user = auth_service.verify_token(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid or expired session token")
+    return user
+
+
+# Authentication Endpoints
+@app.get("/api/auth/config")
+def get_auth_config():
+    return {
+        "google_client_id": settings.google_client_id,
+        "dev_auth": settings.dev_auth,
+        "mongo_connected": mongo_service.is_connected()
+    }
+
+
+@app.post("/api/auth/google")
+async def google_login(payload: GoogleAuthRequest):
+    ok, msg, user, token = await auth_service.verify_google_and_login(payload.credential)
+    if not ok:
+        raise HTTPException(status_code=400, detail=msg)
+    return {"message": msg, "user": user, "token": token}
+
+
+@app.post("/api/auth/otp/send")
+def send_otp(payload: SendOtpRequest):
+    ok, msg, dev_code = auth_service.send_otp(payload.email)
+    if not ok:
+        raise HTTPException(status_code=400, detail=msg)
+    res = {"success": True, "message": msg}
+    if dev_code:
+        res["dev_otp"] = dev_code
+    return res
+
+
+@app.post("/api/auth/otp/verify")
+def verify_otp(payload: VerifyOtpRequest):
+    ok, msg, user, token = auth_service.verify_otp_and_login(payload.email, payload.otp)
+    if not ok:
+        raise HTTPException(status_code=400, detail=msg)
+    return {"message": msg, "user": user, "token": token}
+
+
+@app.post("/api/auth/demo")
+def demo_login():
+    if not settings.dev_auth:
+        raise HTTPException(status_code=403, detail="Demo login is disabled in this environment")
+    ok, msg, user, token = auth_service.demo_login()
+    return {"message": msg, "user": user, "token": token}
+
+
+@app.get("/api/auth/me")
+def get_me(current_user: dict = Depends(get_current_user)):
+    return current_user
 
 @app.get("/health")
 def health_check():

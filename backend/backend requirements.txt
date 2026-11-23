@@ -8,4 +8,5 @@ xgboost
 shap
 GitPython
 psycopg[binary]
-
+pymongo
+pyjwt

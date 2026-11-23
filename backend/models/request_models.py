@@ -126,3 +126,16 @@ class ExportReportRequest(GitHubRepoRequest):
     prediction_threshold: Optional[float] = None
     total_files_scanned: int
     results: List[PredictionResultForExport]
+
+
+class GoogleAuthRequest(BaseModel):
+    credential: str
+
+
+class SendOtpRequest(BaseModel):
+    email: str
+
+
+class VerifyOtpRequest(BaseModel):
+    email: str
+    otp: str

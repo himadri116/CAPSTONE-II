@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import RepositoryInputPage from "./pages/RepositoryInputPage";
@@ -6,21 +7,25 @@ import PredictionResultPage from "./pages/PredictionResultPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
 import PredictionHistoryPage from "./pages/PredictionHistoryPage";
 import FeedbackPage from "./pages/FeedbackPage";
+import LoginPage from "./pages/LoginPage";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Navbar />
+    <AuthProvider>
+      <BrowserRouter>
+        <Navbar />
 
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/repository-input" element={<RepositoryInputPage />} />
-        <Route path="/prediction-result" element={<PredictionResultPage />} />
-        <Route path="/how-it-works" element={<HowItWorksPage />} />
-        <Route path="/prediction-history" element={<PredictionHistoryPage />} />
-        <Route path="/feedback" element={<FeedbackPage />} />
-      </Routes>
-    </BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/repository-input" element={<RepositoryInputPage />} />
+          <Route path="/prediction-result" element={<PredictionResultPage />} />
+          <Route path="/how-it-works" element={<HowItWorksPage />} />
+          <Route path="/prediction-history" element={<PredictionHistoryPage />} />
+          <Route path="/feedback" element={<FeedbackPage />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

@@ -1,4 +1,19 @@
 services:
+  mongo:
+    image: mongo:7.0
+    container_name: bugsight-mongo
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
   backend:
     build:
       context: .
@@ -9,6 +24,9 @@ services:
     environment:
       - PORT=8000
       - ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173
+      - MONGODB_URL=mongodb://mongo:27017/bugsight
+      - JWT_SECRET=bugsight_secret_jwt_key_development_2026
+      - DEV_AUTH=true
       - ALLOW_LOCAL_CACHE_MODE=true
       - ALLOW_HISTORY_DELETE=true
       - MAX_SOURCE_FILES_PER_RUN=500
@@ -16,6 +34,9 @@ services:
       - PREDICTION_HISTORY_DB_PATH=/var/data/prediction_history.db
     volumes:
       - prediction_data:/var/data
+    depends_on:
+      mongo:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/health || python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
       interval: 15s
@@ -40,4 +61,6 @@ services:
 
 volumes:
   prediction_data:
+    driver: local
+  mongo_data:
     driver: local

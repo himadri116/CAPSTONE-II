@@ -1,8 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import logoUrl from "../../assets/logo.png";
 
 function Navbar() {
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   return (
     <header className="navbar-container">
@@ -49,6 +51,29 @@ function Navbar() {
           >
             Feedback
           </Link>
+
+          {user ? (
+            <div className="navbar-user-wrap">
+              {user.avatar ? (
+                <img src={user.avatar} alt={user.name} className="navbar-avatar" />
+              ) : (
+                <div className="navbar-avatar-placeholder">
+                  {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+                </div>
+              )}
+              <span className="navbar-username">{user.name}</span>
+              <button onClick={logout} className="navbar-logout-btn">
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className={`nav-link login-nav-link ${location.pathname === "/login" ? "active" : ""}`}
+            >
+              Sign In
+            </Link>
+          )}
         </div>
       </nav>
     </header>

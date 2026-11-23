@@ -10,8 +10,13 @@ class Settings:
 
         self.allowed_origins = self._parse_csv_env(
             "ALLOWED_ORIGINS",
-            ["http://127.0.0.1:5173", "http://localhost:5173", "https://sdp-for-git-hub.vercel.app"]
+            ["http://127.0.0.1:5173", "http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:3000", "https://sdp-for-git-hub.vercel.app"]
         )
+        self.mongodb_url = os.getenv("MONGODB_URL", "mongodb://mongo:27017/bugsight").strip()
+        self.jwt_secret = os.getenv("JWT_SECRET", "bugsight_secret_jwt_key_development_2026").strip()
+        self.jwt_expires_days = self._parse_int_env("JWT_EXPIRES_DAYS", 7)
+        self.google_client_id = os.getenv("GOOGLE_CLIENT_ID", "").strip()
+        self.dev_auth = self._parse_bool_env("DEV_AUTH", True)
         self.database_url = os.getenv("DATABASE_URL", "").strip()
         self.prediction_history_db_path = os.getenv(
             "PREDICTION_HISTORY_DB_PATH",
