@@ -1,11 +1,24 @@
 .hero {
   background: white;
   padding: 48px;
-  border-radius: 20px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  border-radius: 24px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.08), 0 0 1px 1px rgba(15, 23, 42, 0.02);
   max-width: 900px;
   margin: 0 auto;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
 }
 
 .home-hero {
@@ -13,24 +26,35 @@
 }
 
 .home-eyebrow {
-  color: #1d4ed8;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(99, 102, 241, 0.12));
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 999px;
+  color: #4f46e5;
   display: inline-block;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
-  letter-spacing: 0;
-  margin-bottom: 10px;
+  letter-spacing: 0.8px;
+  margin-bottom: 14px;
+  padding: 6px 18px;
   text-transform: uppercase;
 }
 
 .hero h1 {
-  font-size: 40px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  color: #0f172a;
   margin-bottom: 16px;
+  line-height: 1.22;
 }
 
 .hero p {
-  font-size: 18px;
-  color: #4b5563;
-  line-height: 1.6;
+  font-size: 17.5px;
+  color: #475569;
+  line-height: 1.65;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .hero-actions {
@@ -39,21 +63,29 @@
   flex-wrap: wrap;
   gap: 14px;
   justify-content: center;
-  margin-top: 28px;
+  margin-top: 32px;
 }
 
 .secondary-home-link {
+  background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 999px;
   color: #334155;
-  font-weight: 800;
-  padding: 12px 18px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  padding: 13px 24px;
+  font-size: 15px;
   text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
 }
 
 .secondary-home-link:hover {
   background: #f8fafc;
   border-color: #94a3b8;
+  color: #0f172a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
 }
 
 .home-intro-grid {
@@ -67,10 +99,17 @@
 .home-intro-panel,
 .home-concept {
   background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 18px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-  padding: 24px;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  border-radius: 20px;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+  padding: 28px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.home-intro-panel:hover,
+.home-concept:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.09);
 }
 
 .home-intro-panel h2 {

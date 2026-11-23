@@ -1,33 +1,58 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import logoUrl from "../../assets/logo.png";
 
 function Navbar() {
-  return (
-    <nav className="navbar">
-      <div className="navbar-brand">
-        <img src={logoUrl} alt="BugSight" className="navbar-logo" />
-        <div className="navbar-title">BugSight</div>
-      </div>
+  const location = useLocation();
 
-      <div className="navbar-links">
-        <Link to="/" className="nav-link home-link">Home</Link>
-        <Link to="/repository-input" className="nav-link scan-link">
-          Scan a Repository
+  return (
+    <header className="navbar-container">
+      <nav className="navbar">
+        <Link to="/" className="navbar-brand">
+          <div className="navbar-logo-wrap">
+            <img src={logoUrl} alt="BugSight" className="navbar-logo" />
+          </div>
+          <div className="navbar-title">
+            <span className="brand-bug">Bug</span>
+            <span className="brand-sight">Sight</span>
+            <span className="brand-badge">AI</span>
+          </div>
         </Link>
-        <Link to="/prediction-history" className="nav-link history-link">
-          Prediction History
-        </Link>
-        <Link to="/how-it-works" className="nav-link works-link">
-          How It Works
-        </Link>
-        <Link to="/feedback" className="nav-link feedback-link">
-          Feedback
-        </Link>
-      </div>
-    </nav>
+
+        <div className="navbar-links">
+          <Link
+            to="/"
+            className={`nav-link home-link ${location.pathname === "/" ? "active" : ""}`}
+          >
+            Home
+          </Link>
+          <Link
+            to="/repository-input"
+            className={`nav-link scan-link ${location.pathname === "/repository-input" ? "active" : ""}`}
+          >
+            Scan a Repository
+          </Link>
+          <Link
+            to="/prediction-history"
+            className={`nav-link history-link ${location.pathname === "/prediction-history" ? "active" : ""}`}
+          >
+            Prediction History
+          </Link>
+          <Link
+            to="/how-it-works"
+            className={`nav-link works-link ${location.pathname === "/how-it-works" ? "active" : ""}`}
+          >
+            How It Works
+          </Link>
+          <Link
+            to="/feedback"
+            className={`nav-link feedback-link ${location.pathname === "/feedback" ? "active" : ""}`}
+          >
+            Feedback
+          </Link>
+        </div>
+      </nav>
+    </header>
   );
 }
 
 export default Navbar;
-
-
