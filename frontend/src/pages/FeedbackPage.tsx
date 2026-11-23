@@ -82,7 +82,7 @@ function FeedbackPage() {
     <div className="page feedback-page">
       <section className="feedback-hero">
         <span>Public Feedback</span>
-        <h1>Share feedback about SDP for GitHub</h1>
+        <h1>Share feedback about BugSight</h1>
         <p>
           This page helps collect real user feedback for the project. Submitted
           feedback is public and can be viewed by anyone who opens this page.

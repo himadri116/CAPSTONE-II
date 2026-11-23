@@ -201,7 +201,7 @@ function HowItWorksPage() {
           <span className="how-kicker">Developer Guide</span>
           <h1>How It Works</h1>
           <p>
-            SDP for GitHub checks the files changed in a selected commit, measures
+            BugSight checks the files changed in a selected commit, measures
             code and commit-history signals, then estimates which files deserve
             closer review.
           </p>

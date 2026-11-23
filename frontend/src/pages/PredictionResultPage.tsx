@@ -327,7 +327,7 @@ export const buildPdfReportHtml = (
   return `<!doctype html>
   <html>
     <head>
-      <title>SDP for GitHub Prediction Report</title>
+      <title>BugSight Prediction Report</title>
       <style>
         * { box-sizing: border-box; }
         html, body, * {
@@ -447,7 +447,7 @@ export const buildPdfReportHtml = (
     <body>
       <main class="report-shell">
         <section class="hero">
-          <h1>SDP for GitHub - Prediction Report</h1>
+          <h1>BugSight - Prediction Report</h1>
           <p>This report summarizes the selected prediction results and their risk distribution.</p>
           <div class="meta-grid">
             <div class="meta-item"><span>Repository</span><strong>${escapeHtml(predictionResponse.repo_url)}</strong></div>

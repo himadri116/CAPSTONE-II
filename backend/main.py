@@ -24,8 +24,8 @@ from services.prediction_history_service import PredictionHistoryService
 
 
 app = FastAPI(
-    title="SDP for GitHub Backend",
-    description="Backend API for GitHub-based software defect prediction",
+    title="BugSight Backend",
+    description="Backend API for AI-based software defect prediction",
     version="1.0.0"
 )
 
@@ -53,7 +53,7 @@ ML_WORKSPACE_DIR = settings.ml_workspace_dir
 @app.get("/")
 def root():
     return {
-        "message": "SDP for GitHub Backend is running"
+        "message": "BugSight Backend is running"
     }
 
 

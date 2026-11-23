@@ -5,8 +5,8 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <img src={logoUrl} alt="SDP for GitHub" className="navbar-logo" />
-        <div className="navbar-title">SDP for GitHub</div>
+        <img src={logoUrl} alt="BugSight" className="navbar-logo" />
+        <div className="navbar-title">BugSight</div>
       </div>
 
       <div className="navbar-links">

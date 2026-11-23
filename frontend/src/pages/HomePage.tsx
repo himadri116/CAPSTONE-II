@@ -8,7 +8,7 @@ function HomePage() {
         <h1>Understand GitHub code risk before review</h1>
 
         <p>
-          SDP for GitHub checks Java, Python, and C++ files in a selected
+          BugSight checks Java, Python, and C++ files in a selected
           repository commit. It estimates which files may be more likely to
           contain defects, explains the important metrics behind the result, and
           helps developers decide what to review first.

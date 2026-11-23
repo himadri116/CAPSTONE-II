@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="frontend/assets/logo.png" alt="SDP for GitHub logo" width="120" />
+  <img src="frontend/assets/logo.png" alt="BugSight logo" width="120" />
 </p>
 
-# SDP for GitHub
+# BugSight: AI-Powered Software Defect Prediction
 
-**SDP for GitHub** is a Software Defect Prediction application for GitHub repositories. It analyzes the files changed in a selected commit and estimates which files may need closer review before release.
+**BugSight** is an AI-powered Software Defect Prediction application for GitHub repositories. It analyzes the files changed in a selected commit and estimates which files may need closer review before release.
 
 The application is built as a Academic Final Year Project demonstration with a React frontend, FastAPI backend, PostgreSQL storage for the live demo, SQLite fallback for local development, GitHub repository inspection, static metric extraction, machine learning prediction, dashboard visualization, report export, prediction history, and public feedback.
 
