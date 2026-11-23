@@ -121,7 +121,29 @@ flowchart TD
 - Private repository prediction is not treated as a full production feature in this version.
 - The model result is a decision-support signal, not a guaranteed defect label.
 
-## How To Setup Locally
+## Run With Docker (Quickest)
+
+You can run both the Frontend and Backend together using Docker Compose with a single command:
+
+```bash
+docker compose up --build
+```
+*(Or `docker-compose up --build`)*
+
+Once started:
+- **Frontend App:** [http://localhost:3000](http://localhost:3000)
+- **Backend API:** [http://localhost:8000](http://localhost:8000)
+- **Interactive Swagger UI:** [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Health Check:** [http://localhost:8000/health](http://localhost:8000/health)
+
+To stop the containers:
+```bash
+docker compose down
+```
+
+---
+
+## How To Setup Locally Without Docker
 
 ### Prerequisites
 
