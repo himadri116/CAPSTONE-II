@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: sdp-for-github-backend
+    env: docker
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://sdp-for-git-hub.vercel.app
+      - key: ALLOW_LOCAL_CACHE_MODE
+        value: false
+      - key: ALLOW_HISTORY_DELETE
+        value: false
+      - key: MAX_SOURCE_FILES_PER_RUN
+        value: 500
+      - key: GIT_SHALLOW_HISTORY_DEPTH
+        value: 80
+      - key: GIT_COMMAND_TIMEOUT_SECONDS
+        value: 420
+      - key: MAX_PREDICTION_WORKERS
+        value: 2
+      - key: SDP_TEMP_REPO_DIR
+        value: /tmp/sdp_github_temp_repos
+
+
+

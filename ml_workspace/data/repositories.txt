@@ -1,0 +1,9 @@
+https://github.com/bitcoin/bitcoin
+https://github.com/opencv/opencv
+https://github.com/electron/electron
+https://github.com/spring-projects/spring-framework
+https://github.com/apache/kafka
+https://github.com/elastic/elasticsearch
+https://github.com/django/django
+https://github.com/pandas-dev/pandas
+https://github.com/psf/requests
