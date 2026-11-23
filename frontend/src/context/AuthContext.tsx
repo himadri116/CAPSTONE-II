@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
-import { UserProfile, AuthResponse, SendOtpResponse } from "../types/auth";
+import type { UserProfile, AuthResponse, SendOtpResponse } from "../types/auth";
 import { API_BASE_URL } from "../services/api";
 
 interface AuthContextType {
