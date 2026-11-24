@@ -16,7 +16,8 @@
 }
 
 .signup-link {
-  background: #2563eb;
+  background: #365ee8;
+  color: #ffffff;
 }
 
 .signup-link::before {
@@ -24,11 +25,12 @@
 }
 
 .signup-link:hover {
-  background: #1d4ed8;
+  background: #284ac1;
+  color: #ffffff;
 }
 
 .nav-user {
-  color: #cbd5e1;
+  color: #526078;
   font-size: 14px;
   font-weight: 700;
   max-width: 160px;
@@ -38,10 +40,10 @@
 }
 
 .nav-logout {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: #ffffff;
+  border: 1px solid #dce3ee;
   border-radius: 999px;
-  color: #ffffff;
+  color: #40506a;
   cursor: pointer;
   font-size: 14px;
   font-weight: 700;
@@ -49,12 +51,13 @@
 }
 
 .nav-logout:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: #f1f4fa;
+  border-color: #c9d4e5;
 }
 
 .nav-logout:focus-visible,
 .nav-link:focus-visible {
-  outline: 2px solid #93c5fd;
+  outline: 2px solid #7190f5;
   outline-offset: 2px;
 }
 
@@ -66,7 +69,9 @@
 }
 
 .auth-aside {
-  background: #111827;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(84, 119, 239, 0.3), transparent 18rem),
+    #17233b;
   color: #e5e7eb;
   display: flex;
   flex-direction: column;
@@ -151,8 +156,9 @@
 
 .auth-card {
   background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e7ebf3;
+  border-radius: 20px;
+  box-shadow: 0 22px 60px rgba(27, 45, 80, 0.1);
   max-width: 440px;
   padding: 36px;
   width: 100%;
@@ -182,16 +188,16 @@
 
 .auth-form input {
   background: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
+  border: 1px solid #d9e0eb;
+  border-radius: 11px;
   color: #1f2937;
   font-size: 15px;
   padding: 12px 14px;
 }
 
 .auth-form input:focus {
-  border-color: #2563eb;
-  outline: 3px solid rgba(37, 99, 235, 0.2);
+  border-color: #5273eb;
+  outline: 3px solid rgba(54, 94, 232, 0.14);
 }
 
 .auth-label-row {

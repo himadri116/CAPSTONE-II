@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import logoUrl from "../../assets/logo.png";
 import { useAuth } from "../hooks/useAuth";
 
@@ -12,26 +12,28 @@ function Navbar() {
   };
 
   return (
-    <nav className="navbar">
-      <div className="navbar-brand">
+    <nav className="navbar" aria-label="Main navigation">
+      <Link to="/" className="navbar-brand" aria-label="SDP for GitHub home">
         <img src={logoUrl} alt="SDP for GitHub" className="navbar-logo" />
         <div className="navbar-title">SDP for GitHub</div>
-      </div>
+      </Link>
 
       <div className="navbar-links">
-        <Link to="/" className="nav-link home-link">Home</Link>
-        <Link to="/repository-input" className="nav-link scan-link">
+        <NavLink to="/" end className={({ isActive }) => `nav-link home-link${isActive ? " is-active" : ""}`}>
+          Home
+        </NavLink>
+        <NavLink to="/repository-input" className={({ isActive }) => `nav-link scan-link${isActive ? " is-active" : ""}`}>
           Scan a Repository
-        </Link>
-        <Link to="/prediction-history" className="nav-link history-link">
+        </NavLink>
+        <NavLink to="/prediction-history" className={({ isActive }) => `nav-link history-link${isActive ? " is-active" : ""}`}>
           Prediction History
-        </Link>
-        <Link to="/how-it-works" className="nav-link works-link">
+        </NavLink>
+        <NavLink to="/how-it-works" className={({ isActive }) => `nav-link works-link${isActive ? " is-active" : ""}`}>
           How It Works
-        </Link>
-        <Link to="/feedback" className="nav-link feedback-link">
+        </NavLink>
+        <NavLink to="/feedback" className={({ isActive }) => `nav-link feedback-link${isActive ? " is-active" : ""}`}>
           Feedback
-        </Link>
+        </NavLink>
 
         {!loading && (
           <div className="navbar-auth">
@@ -44,7 +46,9 @@ function Navbar() {
               </>
             ) : (
               <>
-                <Link to="/login" className="nav-link login-link">Log in</Link>
+                <NavLink to="/login" className={({ isActive }) => `nav-link login-link${isActive ? " is-active" : ""}`}>
+                  Log in
+                </NavLink>
                 <Link to="/signup" className="nav-link signup-link">Sign up</Link>
               </>
             )}

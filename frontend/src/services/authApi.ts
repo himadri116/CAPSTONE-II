@@ -2,7 +2,9 @@ import axios from "axios";
 import type { AuthResponse, AuthUser, MessageResponse } from "../types/auth";
 
 // The Express + MongoDB auth server (separate from the FastAPI prediction backend).
-const AUTH_API_URL = import.meta.env.VITE_AUTH_API_URL || "http://localhost:5000";
+const AUTH_API_URL =
+  import.meta.env.VITE_AUTH_API_URL ??
+  (import.meta.env.DEV ? "" : "http://localhost:5000");
 
 const authClient = axios.create({ baseURL: `${AUTH_API_URL}/api/auth` });
 

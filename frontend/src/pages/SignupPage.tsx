@@ -19,7 +19,7 @@ function SignupPage() {
   const [submitting, setSubmitting] = useState(false);
 
   if (user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/repository-input" replace />;
   }
 
   const handleSubmit = async (event: FormEvent) => {
@@ -38,7 +38,7 @@ function SignupPage() {
     setSubmitting(true);
     try {
       await register(name, email, password);
-      navigate("/", { replace: true });
+      navigate("/repository-input", { replace: true });
     } catch (err) {
       setError(getAuthErrorMessage(err, "Could not create your account. Please try again."));
     } finally {
@@ -50,7 +50,7 @@ function SignupPage() {
     setError("");
     try {
       await loginWithGoogle(credential);
-      navigate("/", { replace: true });
+      navigate("/repository-input", { replace: true });
     } catch (err) {
       setError(getAuthErrorMessage(err, "Could not sign you in with Google."));
     }

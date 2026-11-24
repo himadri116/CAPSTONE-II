@@ -1,5 +1,6 @@
 <p align="center">
-  <img src="frontend/assets/logo.png" alt="SDP for GitHub logo" width="120" />
+  <img src="frontend/assets/logo.png" alt="SDP for 
+  GitHub logo" width="120" />
 </p>
 
 # SDP for GitHub

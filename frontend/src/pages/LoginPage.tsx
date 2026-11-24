@@ -18,7 +18,8 @@ function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const redirectTo =
-    (location.state as { from?: { pathname?: string } } | null)?.from?.pathname || "/";
+    (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ||
+    "/repository-input";
 
   if (user) {
     return <Navigate to={redirectTo} replace />;

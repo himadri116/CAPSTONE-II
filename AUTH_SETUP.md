@@ -26,7 +26,7 @@ Public pages: Home, How It Works, Feedback.
 1. https://console.cloud.google.com, create a project.
 2. APIs and Services, OAuth consent screen: choose External, fill the app name and your email, add yourself as a test user.
 3. Credentials, Create credentials, OAuth client ID, type **Web application**.
-4. Authorized JavaScript origins: `http://localhost:5173` (add your deployed frontend URL later).
+4. Authorized JavaScript origins: `http://localhost:5173` for HTTP development, or `https://localhost:5173` for local HTTPS (add your deployed frontend URL later).
 5. Copy the **Client ID**. No client secret is needed.
 
 **Reset emails** (optional locally)
@@ -51,9 +51,27 @@ node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 Then in `frontend/` create a `.env` file (copy `.env.example`) and set:
 
 ```env
-VITE_API_BASE_URL=http://127.0.0.1:8000
-VITE_AUTH_API_URL=http://localhost:5000
+VITE_API_BASE_URL=
+VITE_AUTH_API_URL=
 VITE_GOOGLE_CLIENT_ID=<same client ID as GOOGLE_CLIENT_ID in server/.env>
+```
+
+For local development, leave the two API URLs blank. Vite proxies API requests to the local auth server and prediction API.
+
+### Optional local HTTPS
+
+Install [mkcert](https://github.com/FiloSottile/mkcert), then run these commands from `frontend/` in PowerShell:
+
+```powershell
+mkcert -install
+New-Item -ItemType Directory -Force certs | Out-Null
+mkcert -cert-file certs/localhost.pem -key-file certs/localhost-key.pem localhost 127.0.0.1 ::1
+```
+
+The generated certificate files are local-only and ignored by Git. Restart the Vite server and open `https://localhost:5173`. Add `https://localhost:5173` to Google Cloud's **Authorized JavaScript origins**. In `server/.env`, add it to `CLIENT_URL` and put it first so password-reset links use HTTPS, for example:
+
+```env
+CLIENT_URL=https://localhost:5173,http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000
 ```
 
 ## 3. Run (three terminals)
@@ -74,7 +92,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173, click **Sign up**, then try **Log out**, **Log in**, **Forgot password?** and **Continue with Google**.
+Open http://localhost:5173 (or https://localhost:5173 if local HTTPS is configured), click **Sign up**, then try **Log out**, **Log in**, **Forgot password?** and **Continue with Google**.
 
 ## Docker
 

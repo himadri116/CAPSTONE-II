@@ -4,25 +4,72 @@ function HomePage() {
   return (
     <div className="page">
       <section className="hero home-hero">
-        <span className="home-eyebrow">Software Defect Prediction</span>
-        <h1>Understand GitHub code risk before review</h1>
+        <div className="home-hero-copy">
+          <span className="home-eyebrow">
+            <span className="home-eyebrow-mark" aria-hidden="true" />
+            Software defect prediction
+          </span>
+          <h1>
+            Know where to look <span>before the code review begins.</span>
+          </h1>
+          <p>
+            Scan a GitHub commit to surface files that may deserve a closer
+            look. Explore risk signals and clear explanations for Java, Python,
+            and C++ code.
+          </p>
 
-        <p>
-          SDP for GitHub checks Java, Python, and C++ files in a selected
-          repository commit. It estimates which files may be more likely to
-          contain defects, explains the important metrics behind the result, and
-          helps developers decide what to review first.
-        </p>
+          <div className="hero-actions">
+            <Link to="/repository-input" className="primary-button">
+              Start a prediction <span aria-hidden="true">→</span>
+            </Link>
 
-        <div className="hero-actions">
-          <Link to="/repository-input" className="primary-button">
-            Start Prediction
-          </Link>
-
-          <Link to="/how-it-works" className="secondary-home-link">
-            How It Works
-          </Link>
+            <Link to="/how-it-works" className="secondary-home-link">
+              Explore how it works
+            </Link>
+          </div>
+          <div className="home-hero-note">
+            <span aria-hidden="true">✓</span>
+            Review support, not a replacement for developer judgment
+          </div>
+          <div className="home-language-tags" aria-label="Supported languages">
+            <span><i className="language-dot language-java" /> Java</span>
+            <span><i className="language-dot language-python" /> Python</span>
+            <span><i className="language-dot language-cpp" /> C++</span>
+          </div>
         </div>
+
+        <aside className="home-risk-preview" aria-label="Illustrative prediction preview">
+          <div className="home-preview-heading">
+            <div>
+              <span className="home-preview-kicker">Illustrative preview</span>
+              <h2>File risk overview</h2>
+            </div>
+            <span className="home-preview-icon" aria-hidden="true">⌁</span>
+          </div>
+          <div className="home-preview-file">
+            <span className="home-file-icon" aria-hidden="true">PY</span>
+            <div>
+              <strong>checkout.py</strong>
+              <span>src / payments</span>
+            </div>
+            <span className="home-risk-pill"><i /> Review</span>
+          </div>
+          <div className="home-preview-score">
+            <div>
+              <span>Estimated risk</span>
+              <strong>72%</strong>
+            </div>
+            <span className="home-score-caption">Example only</span>
+          </div>
+          <div className="home-preview-meter" aria-hidden="true">
+            <span />
+          </div>
+          <div className="home-preview-signals">
+            <span>Signals to explore</span>
+            <div><span>Change frequency</span><strong>Elevated</strong></div>
+            <div><span>Code complexity</span><strong>Moderate</strong></div>
+          </div>
+        </aside>
       </section>
 
       <section className="home-intro-grid" aria-label="Application overview">
