@@ -95,6 +95,8 @@ services:
   ngrok:
     image: ngrok/ngrok:latest
     container_name: bugsight-ngrok
+    profiles:
+      - ngrok
     restart: unless-stopped
     environment:
       - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-}
