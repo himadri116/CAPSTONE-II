@@ -1,7 +1,16 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logoUrl from "../../assets/logo.png";
+import { useAuth } from "../hooks/useAuth";
 
 function Navbar() {
+  const { user, loading, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-brand">
@@ -23,11 +32,27 @@ function Navbar() {
         <Link to="/feedback" className="nav-link feedback-link">
           Feedback
         </Link>
+
+        {!loading && (
+          <div className="navbar-auth">
+            {user ? (
+              <>
+                <span className="nav-user" title={user.email}>{user.name}</span>
+                <button type="button" className="nav-logout" onClick={handleLogout}>
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="nav-link login-link">Log in</Link>
+                <Link to="/signup" className="nav-link signup-link">Sign up</Link>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </nav>
   );
 }
 
 export default Navbar;
-
-

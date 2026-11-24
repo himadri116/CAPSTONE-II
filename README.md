@@ -280,6 +280,10 @@ DATABASE_URL=<your-postgresql-connection-url>
 
 When `DATABASE_URL` is set, prediction history and feedback are stored in PostgreSQL. When it is not set, the backend falls back to the local SQLite file configured by `PREDICTION_HISTORY_DB_PATH`.
 
+## Login And Accounts
+
+Users can sign up, log in with email or Google, and reset a forgotten password. Accounts are stored in MongoDB and handled by the Express service in `server/`. See [AUTH_SETUP.md](AUTH_SETUP.md) for setup and run steps.
+
 ## Supported Languages
 
 | Language | Extensions |

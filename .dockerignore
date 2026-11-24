@@ -11,3 +11,4 @@ venv
 .env.*
 ml_workspace/temp_repos
 ml_workspace/**/.ipynb_checkpoints
+server
