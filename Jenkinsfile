@@ -60,9 +60,9 @@ pipeline {
                     fi
 
                     if command -v docker-compose > /dev/null 2>&1; then
-                        docker-compose build frontend backend auth-server
+                        docker-compose -p capstone build frontend backend auth-server
                     else
-                        docker compose build frontend backend auth-server
+                        docker compose -p capstone build frontend backend auth-server
                     fi
                 '''
             }
@@ -73,9 +73,9 @@ pipeline {
                 echo 'Starting BugSight application services...'
                 sh '''
                     if command -v docker-compose > /dev/null 2>&1; then
-                        docker-compose up -d mongo backend auth-server frontend
+                        docker-compose -p capstone up -d --remove-orphans mongo backend auth-server frontend
                     else
-                        docker compose up -d mongo backend auth-server frontend
+                        docker compose -p capstone up -d --remove-orphans mongo backend auth-server frontend
                     fi
                 '''
             }
@@ -87,9 +87,9 @@ pipeline {
                 sh '''
                     sleep 5
                     if command -v docker-compose > /dev/null 2>&1; then
-                        docker-compose ps
+                        docker-compose -p capstone ps
                     else
-                        docker compose ps
+                        docker compose -p capstone ps
                     fi
                 '''
             }
