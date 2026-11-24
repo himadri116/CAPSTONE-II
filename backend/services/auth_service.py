@@ -80,6 +80,41 @@ class AuthService:
     def generate_otp_code(self) -> str:
         return f"{random.randint(100000, 999999)}"
 
+    def _send_email_smtp(self, to_email: str, code: str) -> bool:
+        if not settings.email_user or not settings.email_pass:
+            return False
+        try:
+            import smtplib
+            from email.mime.text import MIMEText
+            from email.mime.multipart import MIMEMultipart
+
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = f"BugSight Login Code: {code}"
+            msg["From"] = settings.email_from or settings.email_user
+            msg["To"] = to_email
+
+            html_body = f"""
+            <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+                <h2 style="color: #4f46e5; margin-top: 0;">BugSight Verification</h2>
+                <p style="color: #334155; font-size: 15px;">Your verification code is:</p>
+                <div style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #0f172a; background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; text-align: center; border-radius: 8px; margin: 18px 0;">
+                    {code}
+                </div>
+                <p style="color: #64748b; font-size: 13px; line-height: 1.5;">This code will expire in 10 minutes. If you did not request this verification, you can safely ignore this email.</p>
+            </div>
+            """
+            msg.attach(MIMEText(html_body, "html"))
+
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=8.0) as server:
+                server.login(settings.email_user, settings.email_pass)
+                server.sendmail(settings.email_user, [to_email], msg.as_string())
+
+            print(f"[AuthService] Successfully sent OTP email to {to_email} via Gmail")
+            return True
+        except Exception as e:
+            print(f"[AuthService] Note: Could not send email via SMTP ({e})")
+            return False
+
     def send_otp(self, email: str) -> Tuple[bool, str, Optional[str]]:
         clean_email = email.lower().strip()
         if not clean_email or "@" not in clean_email:
@@ -88,8 +123,11 @@ class AuthService:
         code = self.generate_otp_code()
         mongo_service.store_otp(clean_email, code, expires_in_seconds=600)
 
+        # Attempt sending real email
+        sent_email = self._send_email_smtp(clean_email, code)
+
         print(f"\n==========================================")
-        print(f"[BUGSIGHT AUTH] OTP for {clean_email}: {code}")
+        print(f"[BUGSIGHT AUTH] OTP for {clean_email}: {code} (Email sent: {sent_email})")
         print(f"==========================================\n")
 
         dev_code = code if settings.dev_auth else None

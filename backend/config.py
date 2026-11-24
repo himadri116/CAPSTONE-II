@@ -97,6 +97,23 @@ class Settings:
 
         return int(value)
 
+    def _load_dotenv(self, filepath: str):
+        if not os.path.exists(filepath):
+            return
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    k, v = line.split("=", 1)
+                    k = k.strip()
+                    v = v.strip().strip("'").strip('"')
+                    if k and k not in os.environ:
+                        os.environ[k] = v
+        except Exception as e:
+            print(f"[Settings] Note reading {filepath}: {e}")
+
 
 settings = Settings()
 
