@@ -80,8 +80,36 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  jenkins:
+    image: jenkins/jenkins:lts-jdk17
+    container_name: bugsight-jenkins
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: bugsight-ngrok
+    restart: unless-stopped
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-}
+    command:
+      - "http"
+      - "sdp-frontend:80"
+    ports:
+      - "4040:4040"
+    depends_on:
+      - frontend
+
 volumes:
   prediction_data:
     driver: local
   mongo_data:
+    driver: local
+  jenkins_data:
     driver: local
