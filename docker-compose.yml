@@ -41,13 +41,6 @@ services:
       start_period: 20s
     restart: unless-stopped
 
-  mongo:
-    image: mongo:7
-    container_name: sdp-mongo
-    volumes:
-      - mongo_data:/data/db
-    restart: unless-stopped
-
   auth-server:
     build:
       context: ./server
@@ -55,12 +48,14 @@ services:
     container_name: sdp-auth-server
     ports:
       - "5000:5000"
+    env_file:
+      - .env
     environment:
       - PORT=5000
       - MONGODB_URI=mongodb://mongo:27017/sdp_auth
-      - JWT_SECRET=${JWT_SECRET:-change-this-development-secret}
+      - JWT_SECRET=${JWT_SECRET:-d88846c48dfef06a3b0e460f15a712cc1caa19e30a3d48b5ffa13961e8f4cccffa5d1b0508b2a64da2e9fe9df2b3ea37}
       - CLIENT_URL=http://localhost:3000,http://localhost:5173
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-402610411923-g3r7t82ht7tes01ofn6a838tsb1oct64.apps.googleusercontent.com}
       - EMAIL_SERVICE=${EMAIL_SERVICE:-gmail}
       - EMAIL_USER=${EMAIL_USER:-}
       - EMAIL_PASS=${EMAIL_PASS:-}
@@ -75,12 +70,8 @@ services:
       dockerfile: Dockerfile
       args:
         - VITE_API_BASE_URL=http://localhost:8001
-<<<<<<< HEAD
-        - VITE_GOOGLE_CLIENT_ID=402610411923-g3r7t82ht7tes01ofn6a838tsb1oct64.apps.googleusercontent.com
-=======
         - VITE_AUTH_API_URL=http://localhost:5000
-        - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
->>>>>>> origin/tanvi
+        - VITE_GOOGLE_CLIENT_ID=402610411923-g3r7t82ht7tes01ofn6a838tsb1oct64.apps.googleusercontent.com
     container_name: sdp-frontend
     ports:
       - "3000:80"

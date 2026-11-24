@@ -1,10 +1,5 @@
 <p align="center">
-<<<<<<< HEAD
   <img src="frontend/assets/logo.png" alt="BugSight logo" width="120" />
-=======
-  <img src="frontend/assets/logo.png" alt="SDP for 
-  GitHub logo" width="120" />
->>>>>>> origin/tanvi
 </p>
 
 # BugSight: AI-Powered Software Defect Prediction

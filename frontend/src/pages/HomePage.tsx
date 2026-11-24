@@ -13,24 +13,15 @@ function HomePage() {
             Know where to look <span>before the code review begins.</span>
           </h1>
           <p>
-            Scan a GitHub commit to surface files that may deserve a closer
+            BugSight scans a GitHub commit to surface files that may deserve a closer
             look. Explore risk signals and clear explanations for Java, Python,
-            and C++ code.
+            and C++ code to help developers decide what to review first.
           </p>
 
-<<<<<<< HEAD
-        <p>
-          BugSight checks Java, Python, and C++ files in a selected
-          repository commit. It estimates which files may be more likely to
-          contain defects, explains the important metrics behind the result, and
-          helps developers decide what to review first.
-        </p>
-=======
           <div className="hero-actions">
             <Link to="/repository-input" className="primary-button">
               Start a prediction <span aria-hidden="true">→</span>
             </Link>
->>>>>>> origin/tanvi
 
             <Link to="/how-it-works" className="secondary-home-link">
               Explore how it works
