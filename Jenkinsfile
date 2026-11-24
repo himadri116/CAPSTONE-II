@@ -46,10 +46,19 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images') {
+        stage('Prepare Environment & Build Images') {
             steps {
-                echo 'Building BugSight services via Docker Compose...'
+                echo 'Preparing environment and building BugSight services via Docker Compose...'
                 sh '''
+                    if [ ! -f .env ]; then
+                        if [ -f .env.example ]; then
+                            echo "Generating .env from .env.example for CI build..."
+                            cp .env.example .env
+                        else
+                            touch .env
+                        fi
+                    fi
+
                     if command -v docker-compose > /dev/null 2>&1; then
                         docker-compose build frontend backend auth-server
                     else
