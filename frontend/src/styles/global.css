@@ -2,8 +2,25 @@
   box-sizing: border-box;
 }
 
+:root {
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  --color-ink: #17233b;
+  --color-muted: #64728a;
+  --color-brand: #365ee8;
+  --color-brand-dark: #284ac1;
+  --color-border: #e2e8f2;
+  --color-surface: #ffffff;
+  --shadow-card: 0 16px 44px rgba(27, 45, 80, 0.075);
+  --color-pop: #d7ff70;
+}
+
 body {
   margin: 0;
+<<<<<<< HEAD
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 60%), #f8fafc;
   color: #1e293b;
@@ -14,13 +31,55 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #0f172a;
+=======
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(ellipse at 8% 8%, rgba(160, 123, 255, 0.14), transparent 28rem),
+    radial-gradient(ellipse at 92% 38%, rgba(255, 174, 135, 0.13), transparent 24rem),
+    #f8f7ff;
+  color: var(--color-ink);
+>>>>>>> origin/tanvi
 }
 
 .page {
-  padding: 40px;
+  margin: 0 auto;
+  max-width: 1440px;
+  min-height: calc(100vh - 72px);
+  padding: clamp(24px, 4vw, 56px) clamp(18px, 4vw, 52px);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--color-ink);
+  letter-spacing: -0.025em;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 3px solid rgba(54, 94, 232, 0.4);
+  outline-offset: 3px;
 }
 
 .primary-button {
+<<<<<<< HEAD
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -30,10 +89,21 @@ h1, h2, h3, h4, h5, h6 {
   padding: 13px 26px;
   border-radius: 999px;
   font-family: 'Plus Jakarta Sans', sans-serif;
+=======
+  align-items: center;
+  display: inline-flex;
+  gap: 10px;
+  background: linear-gradient(135deg, #416df1, #3156d8);
+  color: white;
+  border: none;
+  padding: 13px 20px;
+  border-radius: 13px;
+>>>>>>> origin/tanvi
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
   font-size: 15px;
+<<<<<<< HEAD
   box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -46,6 +116,16 @@ h1, h2, h3, h4, h5, h6 {
 
 .primary-button:active {
   transform: translateY(0);
+=======
+  box-shadow: 0 8px 18px rgba(54, 94, 232, 0.2);
+  transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.primary-button:hover {
+  background: linear-gradient(135deg, #315ee5, #2748c1);
+  box-shadow: 0 11px 22px rgba(54, 94, 232, 0.26);
+  transform: translateY(-1px);
+>>>>>>> origin/tanvi
 }
 
 .primary-button:disabled {
@@ -56,6 +136,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .secondary-button {
+<<<<<<< HEAD
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -65,10 +146,19 @@ h1, h2, h3, h4, h5, h6 {
   padding: 13px 26px;
   border-radius: 999px;
   font-family: 'Plus Jakarta Sans', sans-serif;
+=======
+  display: inline-block;
+  background: #eef2fa;
+  color: #33415c;
+  border: 1px solid #e0e6f0;
+  padding: 13px 20px;
+  border-radius: 13px;
+>>>>>>> origin/tanvi
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
   font-size: 15px;
+<<<<<<< HEAD
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -79,6 +169,15 @@ h1, h2, h3, h4, h5, h6 {
   color: #0f172a;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+=======
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.secondary-button:hover {
+  background: #e4eafb;
+  border-color: #cbd6ed;
+  transform: translateY(-1px);
+>>>>>>> origin/tanvi
 }
 
 .secondary-button:disabled {
@@ -95,11 +194,19 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .error-box {
+<<<<<<< HEAD
   background: #fef2f2;
   color: #991b1b;
   border: 1px solid #fecaca;
   padding: 14px 18px;
   border-radius: 14px;
+=======
+  background: #fff1f0;
+  border: 1px solid #ffd3cf;
+  color: #9c302a;
+  padding: 12px 14px;
+  border-radius: 12px;
+>>>>>>> origin/tanvi
   margin-top: 18px;
   line-height: 1.5;
   overflow-wrap: anywhere;
@@ -108,11 +215,20 @@ h1, h2, h3, h4, h5, h6 {
 
 .loading-box {
   margin-top: 18px;
+<<<<<<< HEAD
   background: #eff6ff;
   border: 1px solid #bfdbfe;
   color: #1e40af;
   padding: 16px 20px;
   border-radius: 14px;
+=======
+  background: #eef3ff;
+  border: 1px solid #dce5ff;
+  border-radius: 12px;
+  color: #294caf;
+  padding: 14px;
+  border-radius: 12px;
+>>>>>>> origin/tanvi
 }
 
 .progress-bar {
@@ -164,6 +280,18 @@ h1, h2, h3, h4, h5, h6 {
 
 @media (max-width: 900px) {
   .page {
-    padding: 24px;
+    min-height: calc(100vh - 64px);
+    padding: 28px 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

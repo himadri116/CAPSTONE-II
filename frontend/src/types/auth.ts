@@ -1,15 +1,22 @@
-export interface UserProfile {
+export interface AuthUser {
   id: string;
-  email: string;
   name: string;
-  avatar?: string;
-  auth_provider: "google" | "otp" | "demo";
+  email: string;
+  avatar?: string | null;
+  authProvider?: "local" | "google" | "otp" | "demo";
+  auth_provider?: "local" | "google" | "otp" | "demo";
 }
 
+export type UserProfile = AuthUser;
+
 export interface AuthResponse {
-  message: string;
-  user: UserProfile;
   token: string;
+  user: AuthUser;
+  message?: string;
+}
+
+export interface MessageResponse {
+  message: string;
 }
 
 export interface SendOtpResponse {
