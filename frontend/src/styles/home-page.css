@@ -1,34 +1,11 @@
 .hero {
-<<<<<<< HEAD
-  background: white;
-  padding: 48px;
-  border-radius: 24px;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.08), 0 0 1px 1px rgba(15, 23, 42, 0.02);
-  max-width: 900px;
-  margin: 0 auto;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
-=======
   background: #ffffff;
   border: 1px solid #e9e5f6;
   padding: clamp(28px, 5vw, 58px);
   border-radius: 26px;
   box-shadow: 0 24px 70px rgba(54, 38, 104, 0.12);
-  max-width: 1140px;
+  max-width: 1240px;
   margin: 0 auto;
->>>>>>> origin/tanvi
 }
 
 .home-hero {
@@ -75,18 +52,6 @@
 }
 
 .home-eyebrow {
-<<<<<<< HEAD
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(99, 102, 241, 0.12));
-  border: 1px solid rgba(99, 102, 241, 0.25);
-  border-radius: 999px;
-  color: #4f46e5;
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.8px;
-  margin-bottom: 14px;
-  padding: 6px 18px;
-=======
   align-items: center;
   color: #dcff8c;
   display: inline-flex;
@@ -95,7 +60,6 @@
   gap: 9px;
   letter-spacing: 0.09em;
   margin-bottom: 16px;
->>>>>>> origin/tanvi
   text-transform: uppercase;
 }
 
@@ -117,27 +81,11 @@
 }
 
 .hero h1 {
-<<<<<<< HEAD
-  font-family: 'Outfit', sans-serif;
-  font-size: 42px;
-  font-weight: 800;
-  letter-spacing: -0.8px;
-  color: #0f172a;
-  margin-bottom: 16px;
-  line-height: 1.22;
-}
-
-.hero p {
-  font-size: 17.5px;
-  color: #475569;
-  line-height: 1.65;
-  max-width: 800px;
-  margin: 0 auto;
-=======
   color: #ffffff;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(39px, 5vw, 66px);
   letter-spacing: -0.055em;
-  line-height: 1.02;
+  line-height: 1.05;
   margin: 0 0 21px;
   max-width: 670px;
 }
@@ -145,6 +93,7 @@
 .hero h1 span {
   background: linear-gradient(90deg, #d7ff70 0%, #9ff0bb 50%, #a9d8ff 100%);
   background-clip: text;
+  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -154,59 +103,33 @@
   line-height: 1.8;
   margin: 0;
   max-width: 560px;
->>>>>>> origin/tanvi
 }
 
 .hero-actions {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-<<<<<<< HEAD
   gap: 14px;
-  justify-content: center;
-  margin-top: 32px;
-}
-
-.secondary-home-link {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-radius: 999px;
-  color: #334155;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 700;
-  padding: 13px 24px;
-  font-size: 15px;
-  text-decoration: none;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
-}
-
-.secondary-home-link:hover {
-  background: #f8fafc;
-  border-color: #94a3b8;
-  color: #0f172a;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
-=======
-  gap: 12px;
   justify-content: flex-start;
-  margin-top: 26px;
+  margin-top: 28px;
 }
 
 .secondary-home-link {
   border: 1px solid rgba(226, 221, 255, 0.32);
-  border-radius: 13px;
+  border-radius: 999px;
   color: #f1efff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 14px;
-  font-weight: 750;
-  padding: 13px 17px;
+  font-weight: 700;
+  padding: 13px 22px;
   text-decoration: none;
-  transition: background 0.18s ease, border-color 0.18s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .secondary-home-link:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(226, 221, 255, 0.62);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(226, 221, 255, 0.65);
+  transform: translateY(-2px);
 }
 
 .home-hero-note {
@@ -451,7 +374,6 @@
 .home-preview-signals strong {
   color: #394a68;
   font-size: 11px;
->>>>>>> origin/tanvi
 }
 
 .home-intro-grid {
@@ -465,7 +387,6 @@
 .home-intro-panel,
 .home-concept {
   background: white;
-<<<<<<< HEAD
   border: 1px solid rgba(226, 232, 240, 0.85);
   border-radius: 20px;
   box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
@@ -477,12 +398,6 @@
 .home-concept:hover {
   transform: translateY(-3px);
   box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.09);
-=======
-  border: 1px solid #e6eaf2;
-  border-radius: 20px;
-  box-shadow: 0 12px 32px rgba(35, 54, 93, 0.055);
-  padding: 26px;
->>>>>>> origin/tanvi
 }
 
 .home-intro-panel h2 {

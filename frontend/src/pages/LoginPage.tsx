@@ -28,7 +28,7 @@ function LoginPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await login({ email, password });
+      await login(email, password);
       navigate(from, { replace: true });
     } catch (err) {
       setError(getAuthErrorMessage(err, "Login failed. Check your credentials."));

@@ -20,27 +20,15 @@
 
 body {
   margin: 0;
-<<<<<<< HEAD
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 60%), #f8fafc;
-  color: #1e293b;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: #0f172a;
-=======
   min-width: 320px;
   min-height: 100vh;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background:
     radial-gradient(ellipse at 8% 8%, rgba(160, 123, 255, 0.14), transparent 28rem),
     radial-gradient(ellipse at 92% 38%, rgba(255, 174, 135, 0.13), transparent 24rem),
     #f8f7ff;
   color: var(--color-ink);
->>>>>>> origin/tanvi
+  -webkit-font-smoothing: antialiased;
 }
 
 .page {
@@ -53,7 +41,10 @@ h1, h2, h3, h4, h5, h6 {
 h1,
 h2,
 h3,
-h4 {
+h4,
+h5,
+h6 {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: var(--color-ink);
   letter-spacing: -0.025em;
 }
@@ -79,31 +70,20 @@ textarea {
 }
 
 .primary-button {
-<<<<<<< HEAD
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 10px;
   background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
   color: white;
   border: none;
-  padding: 13px 26px;
+  padding: 13px 24px;
   border-radius: 999px;
   font-family: 'Plus Jakarta Sans', sans-serif;
-=======
-  align-items: center;
-  display: inline-flex;
-  gap: 10px;
-  background: linear-gradient(135deg, #416df1, #3156d8);
-  color: white;
-  border: none;
-  padding: 13px 20px;
-  border-radius: 13px;
->>>>>>> origin/tanvi
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
   font-size: 15px;
-<<<<<<< HEAD
   box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -116,16 +96,6 @@ textarea {
 
 .primary-button:active {
   transform: translateY(0);
-=======
-  box-shadow: 0 8px 18px rgba(54, 94, 232, 0.2);
-  transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
-}
-
-.primary-button:hover {
-  background: linear-gradient(135deg, #315ee5, #2748c1);
-  box-shadow: 0 11px 22px rgba(54, 94, 232, 0.26);
-  transform: translateY(-1px);
->>>>>>> origin/tanvi
 }
 
 .primary-button:disabled {
@@ -136,29 +106,20 @@ textarea {
 }
 
 .secondary-button {
-<<<<<<< HEAD
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 10px;
   background: #ffffff;
   color: #334155;
   border: 1px solid #cbd5e1;
-  padding: 13px 26px;
+  padding: 13px 24px;
   border-radius: 999px;
   font-family: 'Plus Jakarta Sans', sans-serif;
-=======
-  display: inline-block;
-  background: #eef2fa;
-  color: #33415c;
-  border: 1px solid #e0e6f0;
-  padding: 13px 20px;
-  border-radius: 13px;
->>>>>>> origin/tanvi
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
   font-size: 15px;
-<<<<<<< HEAD
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -169,15 +130,6 @@ textarea {
   color: #0f172a;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
-=======
-  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
-}
-
-.secondary-button:hover {
-  background: #e4eafb;
-  border-color: #cbd6ed;
-  transform: translateY(-1px);
->>>>>>> origin/tanvi
 }
 
 .secondary-button:disabled {
@@ -194,19 +146,11 @@ textarea {
 }
 
 .error-box {
-<<<<<<< HEAD
   background: #fef2f2;
   color: #991b1b;
   border: 1px solid #fecaca;
   padding: 14px 18px;
   border-radius: 14px;
-=======
-  background: #fff1f0;
-  border: 1px solid #ffd3cf;
-  color: #9c302a;
-  padding: 12px 14px;
-  border-radius: 12px;
->>>>>>> origin/tanvi
   margin-top: 18px;
   line-height: 1.5;
   overflow-wrap: anywhere;
@@ -215,20 +159,11 @@ textarea {
 
 .loading-box {
   margin-top: 18px;
-<<<<<<< HEAD
   background: #eff6ff;
   border: 1px solid #bfdbfe;
   color: #1e40af;
   padding: 16px 20px;
   border-radius: 14px;
-=======
-  background: #eef3ff;
-  border: 1px solid #dce5ff;
-  border-radius: 12px;
-  color: #294caf;
-  padding: 14px;
-  border-radius: 12px;
->>>>>>> origin/tanvi
 }
 
 .progress-bar {

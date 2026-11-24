@@ -10,40 +10,17 @@
 
 .navbar {
   min-height: 72px;
-<<<<<<< HEAD
   padding: 0 36px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   max-width: 1400px;
   margin: 0 auto;
-=======
-  padding: 0 clamp(18px, 4vw, 52px);
-  background: rgba(255, 255, 255, 0.88);
-  border-bottom: 1px solid rgba(222, 220, 241, 0.9);
-  color: #17233b;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  backdrop-filter: blur(16px);
-}
-
-.navbar-title {
-  color: #17233b;
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: -0.025em;
->>>>>>> origin/tanvi
 }
 
 .navbar-brand {
   align-items: center;
   display: flex;
-<<<<<<< HEAD
   gap: 12px;
   text-decoration: none;
   transition: transform 0.2s ease, opacity 0.2s ease;
@@ -107,39 +84,19 @@
   letter-spacing: 0.8px;
   text-transform: uppercase;
   box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
-=======
-  flex: 0 0 auto;
-  gap: 11px;
-  text-decoration: none;
-}
-
-.navbar-logo {
-  background: linear-gradient(145deg, #f1edff, #ffffff);
-  border: 1px solid #e8e1ff;
-  border-radius: 14px;
-  height: 40px;
-  object-fit: contain;
-  padding: 3px;
-  width: 40px;
->>>>>>> origin/tanvi
 }
 
 .navbar-links {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-<<<<<<< HEAD
   gap: 8px;
-=======
-  gap: 4px;
->>>>>>> origin/tanvi
   justify-content: flex-end;
 }
 
 .nav-link {
   align-items: center;
   border: 1px solid transparent;
-<<<<<<< HEAD
   border-radius: 999px;
   color: #cbd5e1;
   display: inline-flex;
@@ -196,38 +153,56 @@
 }
 
 .home-link:hover,
-.home-link.active {
+.home-link.active,
+.home-link.is-active {
   background: rgba(56, 189, 248, 0.12);
   border-color: rgba(56, 189, 248, 0.35);
   color: #e0f2fe;
 }
 
 .scan-link:hover,
-.scan-link.active {
+.scan-link.active,
+.scan-link.is-active {
   background: rgba(52, 211, 153, 0.12);
   border-color: rgba(52, 211, 153, 0.35);
   color: #d1fae5;
 }
 
 .history-link:hover,
-.history-link.active {
+.history-link.active,
+.history-link.is-active {
   background: rgba(251, 191, 36, 0.12);
   border-color: rgba(251, 191, 36, 0.35);
   color: #fef3c7;
 }
 
 .works-link:hover,
-.works-link.active {
+.works-link.active,
+.works-link.is-active {
   background: rgba(167, 139, 250, 0.12);
   border-color: rgba(167, 139, 250, 0.35);
   color: #ede9fe;
 }
 
 .feedback-link:hover,
-.feedback-link.active {
+.feedback-link.active,
+.feedback-link.is-active {
   background: rgba(244, 114, 182, 0.12);
   border-color: rgba(244, 114, 182, 0.35);
   color: #fce7f3;
+}
+
+.navbar-auth {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 6px;
+}
+
+.navbar-guest-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .login-nav-link {
@@ -243,11 +218,30 @@
 }
 
 .login-nav-link:hover,
-.login-nav-link.active {
+.login-nav-link.active,
+.login-nav-link.is-active {
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.38), rgba(56, 189, 248, 0.3));
   border-color: rgba(99, 102, 241, 0.75);
   color: #ffffff !important;
   transform: translateY(-1px);
+}
+
+.signup-link {
+  background: linear-gradient(135deg, #4f46e5 0%, #38bdf8 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(79, 70, 229, 0.35);
+}
+
+.signup-link::before {
+  display: none;
+}
+
+.signup-link:hover {
+  background: linear-gradient(135deg, #4338ca 0%, #0ea5e9 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.45);
 }
 
 .navbar-user-wrap {
@@ -324,50 +318,6 @@
     justify-content: flex-start;
   }
 }
-=======
-  border-radius: 10px;
-  color: #5b6880;
-  display: inline-flex;
-  font-size: 13px;
-  font-weight: 650;
-  gap: 7px;
-  padding: 9px 11px;
-  text-decoration: none;
-  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
-}
-
-.nav-link::before {
-  display: none;
-}
-
-.nav-link:hover,
-.nav-link.is-active {
-  background: #f0edff;
-  border-color: #e5ddff;
-  color: #6647ca;
-}
-
-@media (max-width: 900px) {
-  .navbar {
-    padding: 0 20px;
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 10px;
-    justify-content: center;
-    padding-bottom: 12px;
-    padding-top: 12px;
-  }
-
-  .navbar-links {
-    gap: 4px;
-    justify-content: flex-start;
-    width: 100%;
-  }
-}
-
-.feedback-link::before {
-  display: none;
-}
 
 @media (max-width: 560px) {
   .navbar {
@@ -388,4 +338,3 @@
     padding: 8px 9px;
   }
 }
->>>>>>> origin/tanvi
