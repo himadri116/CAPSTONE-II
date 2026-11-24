@@ -20,7 +20,7 @@ This guide explains how to set up **Jenkins** (Continuous Integration & Automate
                                                                 |
                                                                 v
 +-----------------------------+               +----------------------------------+
-|    Jenkins CI/CD Server     | <-------------+  Localhost Jenkins (Port 8080)   |
+|    Jenkins CI/CD Server     | <-------------+  Localhost Jenkins (Port 8085)   |
 |  - Runs Jenkinsfile         |               |  - Pulls code                    |
 |  - Tests Python ML backend  |               |  - Builds Docker images          |
 |  - Builds Vite Frontend     |               |  - Auto-restarts containers      |
@@ -50,7 +50,7 @@ docker exec bugsight-jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 ```
 
 ### Step 3: Complete Jenkins Setup Wizard
-1. Open your browser to: **[http://localhost:8080](http://localhost:8080)**.
+1. Open your browser to: **[http://localhost:8085](http://localhost:8085)**.
 2. Paste the administrator password and click **Continue**.
 3. Select **Install suggested plugins** (installs Git, Pipeline, Workspace Cleanup, etc.).
 4. Create an Admin user (e.g. `admin` / `password123`) and click **Save and Finish**.
@@ -90,7 +90,7 @@ GitHub cannot access `localhost:8080` on your computer directly. **ngrok** provi
    ```
 3. Expose Jenkins:
    ```powershell
-   ngrok http 8080
+   ngrok http 8085
    ```
    You will get a public URL like:
    `https://a1b2-c3d4-e5f6.ngrok-free.app`
