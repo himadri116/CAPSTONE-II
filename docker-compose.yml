@@ -21,22 +21,18 @@ services:
     container_name: sdp-backend
     ports:
       - "8001:8000"
+    env_file:
+      - .env
     environment:
       - PORT=8000
       - ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173
-      - MONGODB_URL=mongodb://mongo:27017/bugsight
-      - JWT_SECRET=bugsight_secret_jwt_key_development_2026
-      - DEV_AUTH=true
+      - SDP_TEMP_REPO_DIR=/tmp/sdp_github_temp_repos
+      - PREDICTION_HISTORY_DB_PATH=/var/data/prediction_history.db
       - ALLOW_LOCAL_CACHE_MODE=true
       - ALLOW_HISTORY_DELETE=true
       - MAX_SOURCE_FILES_PER_RUN=500
-      - SDP_TEMP_REPO_DIR=/tmp/sdp_github_temp_repos
-      - PREDICTION_HISTORY_DB_PATH=/var/data/prediction_history.db
     volumes:
       - prediction_data:/var/data
-    depends_on:
-      mongo:
-        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/health || python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
       interval: 15s
@@ -51,6 +47,7 @@ services:
       dockerfile: Dockerfile
       args:
         - VITE_API_BASE_URL=http://localhost:8001
+        - VITE_GOOGLE_CLIENT_ID=402610411923-g3r7t82ht7tes01ofn6a838tsb1oct64.apps.googleusercontent.com
     container_name: sdp-frontend
     ports:
       - "3000:80"
