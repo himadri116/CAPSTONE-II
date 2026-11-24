@@ -81,7 +81,10 @@ services:
     restart: unless-stopped
 
   jenkins:
-    image: jenkins/jenkins:lts-jdk17
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
+    image: bugsight-jenkins:custom
     container_name: bugsight-jenkins
     user: root
     environment:

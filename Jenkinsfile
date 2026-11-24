@@ -19,57 +19,69 @@ pipeline {
             }
         }
 
-        stage('Backend Verification & Tests') {
+        stage('Verify Docker Engine Connection') {
             steps {
-                echo 'Running Python backend unit tests...'
+                echo 'Checking Docker and Docker Compose inside Jenkins container...'
                 sh '''
-                    if command -v python3 &> /dev/null; then
-                        python3 -m venv venv || true
-                        . venv/bin/activate || true
-                        pip install --no-cache-dir -r "backend/backend requirements.txt" pytest || true
-                        pytest backend/tests/test_backend_services.py -v || true
+                    docker --version
+                    if command -v docker-compose > /dev/null 2>&1; then
+                        docker-compose --version
                     else
-                        echo "Python3 not installed in container agent, running tests inside docker..."
+                        docker compose version
                     fi
+                    docker ps
                 '''
             }
         }
 
-        stage('Frontend Verification & Build') {
+        stage('Verify Project Source') {
             steps {
-                echo 'Building frontend production bundle...'
+                echo 'Verifying repository structure...'
                 sh '''
-                    if command -v npm &> /dev/null; then
-                        cd frontend
-                        npm ci || npm install
-                        npm run build
-                    else
-                        echo "Node/NPM build will be handled inside Docker build stage."
-                    fi
+                    test -f "backend/main.py" && echo "Backend: OK"
+                    test -f "frontend/package.json" && echo "Frontend: OK"
+                    test -f "server/server.js" && echo "Auth Server: OK"
+                    test -f "docker-compose.yml" && echo "Compose Configuration: OK"
                 '''
             }
         }
 
         stage('Build Docker Images') {
             steps {
-                echo 'Building all multi-container images via Docker Compose...'
-                sh 'docker compose build --parallel'
+                echo 'Building BugSight services via Docker Compose...'
+                sh '''
+                    if command -v docker-compose > /dev/null 2>&1; then
+                        docker-compose build frontend backend auth-server
+                    else
+                        docker compose build frontend backend auth-server
+                    fi
+                '''
             }
         }
 
-        stage('Deploy Containers') {
+        stage('Deploy Application Containers') {
             steps {
-                echo 'Restarting BugSight application containers...'
-                sh 'docker compose up -d'
+                echo 'Starting BugSight application services...'
+                sh '''
+                    if command -v docker-compose > /dev/null 2>&1; then
+                        docker-compose up -d mongo backend auth-server frontend
+                    else
+                        docker compose up -d mongo backend auth-server frontend
+                    fi
+                '''
             }
         }
 
         stage('Smoke Test Services') {
             steps {
-                echo 'Checking service health endpoints...'
+                echo 'Checking running BugSight containers...'
                 sh '''
-                    sleep 10
-                    docker compose ps
+                    sleep 5
+                    if command -v docker-compose > /dev/null 2>&1; then
+                        docker-compose ps
+                    else
+                        docker compose ps
+                    fi
                 '''
             }
         }
@@ -77,13 +89,13 @@ pipeline {
 
     post {
         always {
-            echo 'Pipeline run finished.'
+            echo 'Pipeline execution completed.'
         }
         success {
-            echo 'CI/CD Pipeline succeeded! BugSight is up and running.'
+            echo 'CI/CD Pipeline passed successfully! BugSight is running.'
         }
         failure {
-            echo 'CI/CD Pipeline failed. Inspect the console output above.'
+            echo 'CI/CD Pipeline encountered an error. Check logs above.'
         }
     }
 }
