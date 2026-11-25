@@ -3,9 +3,8 @@ name: capstone
 services:
   mongo:
     image: mongo:7.0
-    container_name: bugsight-mongo
     ports:
-      - "27018:27017"
+      - "${MONGO_HOST_PORT:-27018}:27017"
     volumes:
       - mongo_data:/data/db
     restart: unless-stopped
@@ -20,14 +19,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: sdp-backend
     ports:
-      - "8001:8000"
+      - "${BACKEND_HOST_PORT:-8001}:8000"
     env_file:
       - .env
     environment:
       - PORT=8000
-      - ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173
+      - MONGODB_URI=mongodb://mongo:27017/${MONGODB_DATABASE:-bugsight}
+      - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET in the project .env file}
+      - AUTH_API_URL=http://localhost:5000
+      - ALLOWED_ORIGINS=https://localhost:8443,http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173
       - SDP_TEMP_REPO_DIR=/tmp/sdp_github_temp_repos
       - PREDICTION_HISTORY_DB_PATH=/var/data/prediction_history.db
       - ALLOW_LOCAL_CACHE_MODE=true
@@ -47,23 +48,24 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile
-    container_name: sdp-auth-server
     ports:
-      - "5000:5000"
+      - "${AUTH_HOST_PORT:-5000}:5000"
     env_file:
       - .env
     environment:
       - PORT=5000
-      - MONGODB_URI=mongodb://mongo:27017/sdp_auth
-      - JWT_SECRET=${JWT_SECRET:-d88846c48dfef06a3b0e460f15a712cc1caa19e30a3d48b5ffa13961e8f4cccffa5d1b0508b2a64da2e9fe9df2b3ea37}
-      - CLIENT_URL=http://localhost:3000,http://localhost:5173
+      - MONGODB_URI=mongodb://mongo:27017/${MONGODB_DATABASE:-bugsight}
+      - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET in the project .env file}
+      - API_DOCS_URL=http://localhost:8001/docs
+      - CLIENT_URL=https://localhost:8443,http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173,http://localhost:8001,http://127.0.0.1:8001
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-402610411923-g3r7t82ht7tes01ofn6a838tsb1oct64.apps.googleusercontent.com}
       - EMAIL_SERVICE=${EMAIL_SERVICE:-gmail}
       - EMAIL_USER=${EMAIL_USER:-}
       - EMAIL_PASS=${EMAIL_PASS:-}
       - EMAIL_FROM=${EMAIL_FROM:-}
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     restart: unless-stopped
 
   frontend:
@@ -71,16 +73,37 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - VITE_API_BASE_URL=http://localhost:8001
-        - VITE_AUTH_API_URL=http://localhost:5000
-        - VITE_GOOGLE_CLIENT_ID=402610411923-g3r7t82ht7tes01ofn6a838tsb1oct64.apps.googleusercontent.com
-    container_name: sdp-frontend
+        - VITE_API_BASE_URL=/api/scan
+        - VITE_AUTH_API_URL=
+        - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-402610411923-g3r7t82ht7tes01ofn6a838tsb1oct64.apps.googleusercontent.com}
     ports:
-      - "3000:80"
+      - "${FRONTEND_HTTP_PORT:-3000}:80"
+      - "${FRONTEND_HTTPS_PORT:-8443}:443"
+    volumes:
+      - tls_certs:/etc/nginx/certs:ro
     depends_on:
       backend:
         condition: service_healthy
+      auth-server:
+        condition: service_started
     restart: unless-stopped
+
+  tls-cert-init:
+    image: alpine:3.21
+    profiles:
+      - local-tls
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - |
+        test -s /source/localhost.pem
+        test -s /source/localhost-key.pem
+        cp /source/localhost.pem /certs/localhost.pem
+        cp /source/localhost-key.pem /certs/localhost-key.pem
+        chmod 644 /certs/localhost.pem
+        chmod 600 /certs/localhost-key.pem
+    volumes:
+      - ./frontend/certs:/source:ro
+      - tls_certs:/certs
 
   jenkins:
     build:
@@ -97,6 +120,7 @@ services:
       - "50000:50000"
     volumes:
       - jenkins_data:/var/jenkins_home
+      - tls_certs:/tls_certs
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
 
@@ -110,7 +134,7 @@ services:
       - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-}
     command:
       - "http"
-      - "sdp-frontend:80"
+      - "frontend:80"
     ports:
       - "4040:4040"
     depends_on:
@@ -123,3 +147,5 @@ volumes:
     driver: local
   jenkins_data:
     driver: local
+  tls_certs:
+    name: capstone_tls_certs

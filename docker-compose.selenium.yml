@@ -1,0 +1,29 @@
+services:
+  selenium-chrome:
+    image: selenium/standalone-chrome:4.54.0
+    shm_size: 2gb
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:4444/status | grep -Eq '\"ready\"[[:space:]]*:[[:space:]]*true'"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  selenium-tests:
+    build:
+      context: .
+      dockerfile: tests/Dockerfile.selenium
+    environment:
+      BUGSIGHT_BASE_URL: https://frontend
+      BUGSIGHT_HEADLESS: "1"
+      BUGSIGHT_ACCEPT_INSECURE_CERTS: "1"
+      SELENIUM_REMOTE_URL: http://selenium-chrome:4444
+    depends_on:
+      selenium-chrome:
+        condition: service_healthy
+
+volumes:
+  tls_certs:
+    external: true
+    name: capstone_tls_certs

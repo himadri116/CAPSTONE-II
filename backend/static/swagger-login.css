@@ -1,0 +1,63 @@
+.swagger-login-dialog {
+  width: min(420px, calc(100% - 32px));
+  border: 0;
+  border-radius: 8px;
+  padding: 24px;
+  color: #202124;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 28%);
+}
+
+.swagger-login-dialog::backdrop {
+  background: rgb(0 0 0 / 55%);
+}
+
+.swagger-login-form h2 {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+}
+
+.swagger-login-form label {
+  display: block;
+  margin-top: 16px;
+  font-weight: 600;
+}
+
+.swagger-login-form input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px;
+  border: 1px solid #9aa0a6;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.swagger-login-message {
+  min-height: 1.25em;
+  color: #b3261e;
+}
+
+.swagger-login-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.swagger-login-actions button {
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.swagger-login-submit {
+  background: #1976d2;
+  color: #fff;
+}
+
+.swagger-login-submit:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}

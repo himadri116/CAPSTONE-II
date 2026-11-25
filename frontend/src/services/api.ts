@@ -17,8 +17,26 @@ import type {
 
 // The deployed frontend reads the backend URL from Vite environment variables
 export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ??
-  (import.meta.env.DEV ? "" : "http://127.0.0.1:8000");
+  import.meta.env.DEV
+    ? "/api/scan"
+    : import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000";
+
+const apiClient = axios.create();
+
+apiClient.interceptors.request.use((config) => {
+  let token: string | null = null;
+  try {
+    token = window.localStorage.getItem("sdp_auth_token");
+  } catch {
+    token = null;
+  }
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
 
 
 export const getApiErrorMessage = (
@@ -68,7 +86,7 @@ export const getApiErrorMessage = (
 export const predictDefects = async (
   request: PredictionRequest
 ): Promise<PredictionResponse> => {
-  const response = await axios.post<PredictionResponse>(
+  const response = await apiClient.post<PredictionResponse>(
     `${API_BASE_URL}/predict`,
     request
   );
@@ -79,7 +97,7 @@ export const predictDefects = async (
 export const startPredictionJob = async (
   request: PredictionRequest
 ): Promise<PredictionJobStatus> => {
-  const response = await axios.post<PredictionJobStatus>(
+  const response = await apiClient.post<PredictionJobStatus>(
     `${API_BASE_URL}/prediction-jobs`,
     request
   );
@@ -90,7 +108,7 @@ export const startPredictionJob = async (
 export const fetchPredictionJob = async (
   jobId: string
 ): Promise<PredictionJobStatus> => {
-  const response = await axios.get<PredictionJobStatus>(
+  const response = await apiClient.get<PredictionJobStatus>(
     `${API_BASE_URL}/prediction-jobs/${jobId}`
   );
 
@@ -100,7 +118,7 @@ export const fetchPredictionJob = async (
 export const cancelPredictionJob = async (
   jobId: string
 ): Promise<PredictionJobStatus> => {
-  const response = await axios.post<PredictionJobStatus>(
+  const response = await apiClient.post<PredictionJobStatus>(
     `${API_BASE_URL}/prediction-jobs/${jobId}/cancel`
   );
 
@@ -109,7 +127,7 @@ export const cancelPredictionJob = async (
 export const exportPredictionReport = async (
   predictionResponse: PredictionResponse
 ): Promise<Blob> => {
-  const response = await axios.post(
+  const response = await apiClient.post(
     `${API_BASE_URL}/export-report`,
     predictionResponse,
     {
@@ -122,7 +140,7 @@ export const exportPredictionReport = async (
 
 export const fetchModelTransparency =
   async (): Promise<ModelTransparencyResponse> => {
-    const response = await axios.get<ModelTransparencyResponse>(
+    const response = await apiClient.get<ModelTransparencyResponse>(
       `${API_BASE_URL}/model-transparency`
     );
 
@@ -131,7 +149,7 @@ export const fetchModelTransparency =
 
 
 export const fetchFeedback = async (): Promise<FeedbackListResponse> => {
-  const response = await axios.get<FeedbackListResponse>(
+  const response = await apiClient.get<FeedbackListResponse>(
     `${API_BASE_URL}/feedback`
   );
 
@@ -141,7 +159,7 @@ export const fetchFeedback = async (): Promise<FeedbackListResponse> => {
 export const submitFeedback = async (
   request: FeedbackRequest
 ): Promise<FeedbackCreateResponse> => {
-  const response = await axios.post<FeedbackCreateResponse>(
+  const response = await apiClient.post<FeedbackCreateResponse>(
     `${API_BASE_URL}/feedback`,
     request
   );
@@ -150,7 +168,7 @@ export const submitFeedback = async (
 };
 export const fetchPredictionHistory =
   async (): Promise<PredictionHistoryListResponse> => {
-    const response = await axios.get<PredictionHistoryListResponse>(
+    const response = await apiClient.get<PredictionHistoryListResponse>(
       `${API_BASE_URL}/prediction-history`
     );
 
@@ -160,7 +178,7 @@ export const fetchPredictionHistory =
 export const fetchPredictionHistoryDetail = async (
   historyId: string
 ): Promise<PredictionHistoryDetail> => {
-  const response = await axios.get<PredictionHistoryDetail>(
+  const response = await apiClient.get<PredictionHistoryDetail>(
     `${API_BASE_URL}/prediction-history/${historyId}`
   );
 
@@ -170,7 +188,7 @@ export const fetchPredictionHistoryDetail = async (
 export const deletePredictionHistoryItem = async (
   historyId: string
 ): Promise<void> => {
-  await axios.delete(`${API_BASE_URL}/prediction-history/${historyId}`);
+  await apiClient.delete(`${API_BASE_URL}/prediction-history/${historyId}`);
 };
 
 export const fetchBranches = async (
@@ -178,7 +196,7 @@ export const fetchBranches = async (
   usePersonalAccessToken: boolean = false,
   githubToken: string = ""
 ): Promise<BranchListResponse> => {
-  const response = await axios.post<BranchListResponse>(
+  const response = await apiClient.post<BranchListResponse>(
     `${API_BASE_URL}/branches`,
     {
       repo_url: repoUrl,
@@ -196,7 +214,7 @@ export const fetchTags = async (
   usePersonalAccessToken: boolean = false,
   githubToken: string = ""
 ): Promise<TagListResponse> => {
-  const response = await axios.post<TagListResponse>(
+  const response = await apiClient.post<TagListResponse>(
     `${API_BASE_URL}/tags`,
     {
       repo_url: repoUrl,
@@ -216,7 +234,7 @@ export const fetchCommits = async (
   usePersonalAccessToken: boolean = false,
   githubToken: string = ""
 ): Promise<CommitListResponse> => {
-  const response = await axios.post<CommitListResponse>(
+  const response = await apiClient.post<CommitListResponse>(
     `${API_BASE_URL}/commits`,
     {
       repo_url: repoUrl,

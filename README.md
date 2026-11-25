@@ -6,7 +6,7 @@
 
 **BugSight** is an AI-powered Software Defect Prediction application for GitHub repositories. It analyzes the files changed in a selected commit and estimates which files may need closer review before release.
 
-The application is built as a Academic Final Year Project demonstration with a React frontend, FastAPI backend, PostgreSQL storage for the live demo, SQLite fallback for local development, GitHub repository inspection, static metric extraction, machine learning prediction, dashboard visualization, report export, prediction history, and public feedback.
+The application is built as an Academic Final Year Project demonstration with a React frontend, Express authentication service, FastAPI scanner API, PostgreSQL storage for the live demo, SQLite fallback for local development, GitHub repository inspection, static metric extraction, machine learning prediction, dashboard visualization, report export, shared prediction history, and feedback.
 
 ## Live Demo
 
@@ -14,7 +14,7 @@ Try the application here:
 
 [https://sdp-for-git-hub.vercel.app/](https://sdp-for-git-hub.vercel.app/)
 
-Please help through feedback of this application. The feedback page is public, so any feedback submitted there can be viewed by everyone who opens the page.
+Please help through feedback of this application. Sign in to submit feedback; feedback is shared with other signed-in users.
 
 ## Application Preview
 
@@ -51,7 +51,7 @@ flowchart TD
     E --> F["The model estimates file risk"]
     F --> G["User reviews dashboard explanations and reports"]
     G --> H["Prediction history is saved"]
-    G --> I["Public feedback can be submitted"]
+    G --> I["Signed-in users can submit shared feedback"]
 ```
 
 ### Application Components
@@ -84,7 +84,7 @@ flowchart TD
 
 ## Key Features
 
-- Public GitHub repository scanning by branch, tag, and commit.
+- Authenticated GitHub repository scanning by branch, tag, and commit.
 - File-level defect risk prediction for Java, Python, and C++ files.
 - GitHub API commit loading so large repositories do not need to be cloned just to display commit pages.
 - Progress status while the backend analyzes a commit.
@@ -94,8 +94,8 @@ flowchart TD
 - Separate display for normal code files and potential test files.
 - File path, language, risk level, prediction label, and probability filtering.
 - CSV and PDF export for selected prediction rows.
-- Prediction history stored in PostgreSQL on the live demo and SQLite during local fallback.
-- Public feedback page stored in PostgreSQL on the live demo and SQLite during local fallback.
+- Prediction history shared among signed-in users, stored in PostgreSQL on the live demo and SQLite during local fallback.
+- Feedback shared among signed-in users, stored in PostgreSQL on the live demo and SQLite during local fallback.
 - How It Works page for non-ML developers and evaluators.
 - Training scripts and notebooks for model building and evaluation.
 
@@ -104,7 +104,8 @@ flowchart TD
 | Layer | Technology |
 | --- | --- |
 | Frontend | React, Vite, TypeScript |
-| Backend | FastAPI, Python |
+| Authentication | Express, Node.js, MongoDB |
+| Scanner API | FastAPI, Python |
 | Machine Learning | scikit-learn, XGBoost, pandas, joblib |
 | Repository Access | Git, GitPython, GitHub API |
 | Storage | PostgreSQL for deployment, SQLite fallback for local development |
@@ -123,21 +124,31 @@ flowchart TD
 
 ## Run With Docker (Quickest)
 
-You can run both the Frontend and Backend together using Docker Compose with a single command:
+Create the project `.env` file and local HTTPS certificate, then initialize the certificate volume and start the application:
 
-```bash
-docker compose up --build
+```powershell
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
+# Set JWT_SECRET to a long random value in .env
+Set-Location frontend
+mkcert -install
+New-Item -ItemType Directory -Force certs | Out-Null
+mkcert -cert-file certs/localhost.pem -key-file certs/localhost-key.pem localhost 127.0.0.1 ::1
+Set-Location ..
+docker compose --profile local-tls run --rm tls-cert-init
+docker compose up --build -d mongo backend auth-server frontend
 ```
-*(Or `docker-compose up --build`)*
 
 Once started:
-- **Frontend App:** [http://localhost:3000](http://localhost:3000)
-- **Backend API:** [http://localhost:8000](http://localhost:8000)
-- **Interactive Swagger UI:** [http://localhost:8000/docs](http://localhost:8000/docs)
-- **Health Check:** [http://localhost:8000/health](http://localhost:8000/health)
+- **Frontend App (HTTPS):** [https://localhost:8443](https://localhost:8443)
+- **Frontend App (HTTP):** [http://localhost:3000](http://localhost:3000)
+- **Unified Swagger UI:** [http://localhost:8001/docs](http://localhost:8001/docs)
+- **Scanner API:** [http://localhost:8001](http://localhost:8001)
+- **Health Check:** [http://localhost:8001/health](http://localhost:8001/health)
+
+The Swagger page documents both the Express authentication endpoints and FastAPI scanner endpoints. Use **Authorize** / the sign-in prompt to obtain a JWT; the same token protects scanning, feedback, reports, and shared history.
 
 To stop the containers:
-```bash
+```powershell
 docker compose down
 ```
 
@@ -218,7 +229,7 @@ npm install
 Create a `.env` file inside the `frontend` folder:
 
 ```env
-VITE_API_BASE_URL=http://127.0.0.1:8000
+VITE_API_BASE_URL=/api/scan
 ```
 
 ### 6. Start The Frontend
@@ -258,6 +269,80 @@ https://github.com/owner/repository.git
 
 The application also accepts common GitHub HTTPS repository URLs without `.git` and normalizes them internally.
 
+## Testing
+
+### Backend unit and API tests
+
+From the project root, activate the Python environment and run the existing backend test suite:
+
+```powershell
+if (-not (Test-Path .venv\Scripts\Activate.ps1)) { python -m venv .venv }
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r "backend\backend requirements.txt"
+python -m unittest discover -s backend\tests -p "test_*.py"
+```
+
+### Frontend unit tests
+
+```powershell
+Set-Location frontend
+npm install
+npm test
+```
+
+### Selenium browser tests
+
+The Selenium tests exercise guest-route protection, signup, logout, login, password-reset request, and reset-password validation. Signup creates a unique test account, so run the test services against a dedicated local test database rather than a development or production database. The browser tests need the Express auth service and Vite frontend; backend API behavior is covered by the backend unit/API tests above.
+
+The Jenkins pipeline runs this suite in its **Selenium UI Tests** stage using a remote Chrome container and a separate Compose project with its own MongoDB volume and `bugsight_selenium_test` database. This keeps generated signup accounts separate from the deployed application database. The local manual setup below remains available for visible browser demonstrations.
+
+Start the local MongoDB service from an Administrator PowerShell window:
+
+```powershell
+Start-Service MongoDB
+```
+
+In a separate terminal, start Express with the dedicated test database and a test-only JWT secret. Use a long random value and the same value wherever you start another service:
+
+```powershell
+Set-Location server
+$env:MONGODB_URI = "mongodb://127.0.0.1:27017/bugsight_selenium_test"
+$env:JWT_SECRET = "<paste-the-same-random-test-only-value>"
+$env:PORT = "5001"
+$env:CLIENT_URL = "http://127.0.0.1:5174"
+npm start
+```
+
+In another terminal, start the frontend pointing at that isolated auth service:
+
+```powershell
+Set-Location frontend
+$env:VITE_AUTH_API_URL = "http://127.0.0.1:5001"
+npm run dev -- --host 127.0.0.1 --port 5174
+```
+
+Install the Selenium test dependency and run the browser tests from the project root. For a visible demo, start screen recording first and set `BUGSIGHT_HEADLESS` to `0`:
+
+```powershell
+if (-not (Test-Path .venv\Scripts\Activate.ps1)) { python -m venv .venv }
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r tests\requirements-selenium.txt
+$env:BUGSIGHT_BASE_URL = "http://127.0.0.1:5174"
+$env:BUGSIGHT_HEADLESS = "0"
+$env:BUGSIGHT_PAUSE_ON_FINISH = "1"
+python -m unittest discover -s tests\selenium -p "test_*.py"
+```
+
+Chrome must be installed. The test pauses before closing Chrome; stop the recording, then press Enter in PowerShell. Selenium does not save a video itself. Do not use this test JWT secret or test database for deployment.
+
+Frontend auth-page unit tests and backend unit/API tests can be run separately without starting MongoDB:
+
+```powershell
+python -m unittest discover -s backend\tests -p "test_*.py"
+Set-Location frontend
+npm test
+```
+
 ## Deployment Files In This Repository
 
 These files help the hosted backend run on Render. They are included for deploying live service, but if you are a local user, do not need to edit them.
@@ -270,7 +355,7 @@ These files help the hosted backend run on Render. They are included for deployi
 
 ## Database Storage
 
-The deployed application use PostgreSQL so prediction history and public feedback do not disappear when the backend restarts. Which happen during SQLite.
+The deployed application uses PostgreSQL so shared prediction history and feedback do not disappear when the backend restarts, unlike local SQLite storage.
 
 Set this environment variable on the backend hosting service:
 
@@ -282,7 +367,7 @@ When `DATABASE_URL` is set, prediction history and feedback are stored in Postgr
 
 ## Login And Accounts
 
-Users can sign up, log in with email or Google, and reset a forgotten password. Accounts are stored in MongoDB and handled by the Express service in `server/`. See [AUTH_SETUP.md](AUTH_SETUP.md) for setup and run steps.
+Users can sign up, log in with email or Google, and reset a forgotten password. Accounts are stored in MongoDB and handled by Express in `server/`. FastAPI validates the same JWT against the shared MongoDB users collection. See [AUTH_SETUP.md](AUTH_SETUP.md) for setup and run steps.
 
 ## Supported Languages
 
@@ -437,7 +522,7 @@ pip install -r requirements.txt
 - High-risk files should be reviewed more carefully, tested more thoroughly, or inspected for complexity and coupling.
 - Model quality depends on dataset size, label balance, and repository relevance.
 - Static metrics do not capture runtime failures, developer intent, production incidents, or test coverage quality.
-- The feedback page is public so evaluators and testers can leave visible comments about the application.
+- Feedback, scanning, reports, and prediction history require a signed-in account; history and feedback are shared among signed-in users.
 
 ## License
 

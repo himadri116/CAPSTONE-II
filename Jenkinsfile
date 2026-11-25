@@ -9,6 +9,7 @@ pipeline {
     environment {
         COMPOSE_DOCKER_CLI_BUILD = '1'
         DOCKER_BUILDKIT = '1'
+        JWT_SECRET = credentials('bugsight-jwt-secret')
     }
 
     stages {
@@ -49,22 +50,33 @@ pipeline {
         stage('Prepare Environment & Build Images') {
             steps {
                 echo 'Preparing environment and building BugSight services via Docker Compose...'
-                sh '''
-                    if [ ! -f .env ]; then
-                        if [ -f .env.example ]; then
-                            echo "Generating .env from .env.example for CI build..."
-                            cp .env.example .env
-                        else
-                            touch .env
-                        fi
-                    fi
+                withCredentials([
+                    file(credentialsId: 'bugsight-localhost-cert', variable: 'TLS_CERT_FILE'),
+                    file(credentialsId: 'bugsight-localhost-key', variable: 'TLS_KEY_FILE')
+                ]) {
+                    sh '''
+                        set +x
+                        test -s "$TLS_CERT_FILE"
+                        test -s "$TLS_KEY_FILE"
+                        install -m 0644 "$TLS_CERT_FILE" /tls_certs/localhost.pem
+                        install -m 0600 "$TLS_KEY_FILE" /tls_certs/localhost-key.pem
 
-                    if command -v docker-compose > /dev/null 2>&1; then
-                        docker-compose -p capstone build frontend backend auth-server
-                    else
-                        docker compose -p capstone build frontend backend auth-server
-                    fi
-                '''
+                        if [ ! -f .env ]; then
+                            if [ -f .env.example ]; then
+                                echo "Generating .env from .env.example for CI build..."
+                                cp .env.example .env
+                            else
+                                touch .env
+                            fi
+                        fi
+
+                        if command -v docker-compose > /dev/null 2>&1; then
+                            docker-compose -p capstone build frontend backend auth-server
+                        else
+                            docker compose -p capstone build frontend backend auth-server
+                        fi
+                    '''
+                }
             }
         }
 
@@ -87,10 +99,48 @@ pipeline {
                 sh '''
                     sleep 5
                     if command -v docker-compose > /dev/null 2>&1; then
+                        docker-compose -p capstone exec -T frontend nginx -t
+                        docker-compose -p capstone exec -T backend python -c "import ssl, urllib.request; urllib.request.urlopen('https://frontend/', context=ssl._create_unverified_context(), timeout=10).read(1)"
                         docker-compose -p capstone ps
                     else
+                        docker compose -p capstone exec -T frontend nginx -t
+                        docker compose -p capstone exec -T backend python -c "import ssl, urllib.request; urllib.request.urlopen('https://frontend/', context=ssl._create_unverified_context(), timeout=10).read(1)"
                         docker compose -p capstone ps
                     fi
+                '''
+            }
+        }
+
+        stage('Selenium UI Tests') {
+            steps {
+                echo 'Running the authentication browser suite against an isolated Docker test stack...'
+                sh '''
+                    set -eu
+
+                    compose() {
+                        if command -v docker-compose > /dev/null 2>&1; then
+                            docker-compose "$@"
+                        else
+                            docker compose "$@"
+                        fi
+                    }
+
+                    export MONGODB_DATABASE=bugsight_selenium_test
+                    export MONGO_HOST_PORT=27028
+                    export BACKEND_HOST_PORT=18001
+                    export AUTH_HOST_PORT=15000
+                    export FRONTEND_HTTP_PORT=13000
+                    export FRONTEND_HTTPS_PORT=18443
+
+                    cleanup() {
+                        status=$?
+                        compose -f docker-compose.yml -f docker-compose.selenium.yml -p capstone-selenium down || echo "WARNING: Selenium test containers could not be fully stopped."
+                        exit "$status"
+                    }
+                    trap cleanup EXIT
+
+                    compose -f docker-compose.yml -f docker-compose.selenium.yml -p capstone-selenium up -d --build mongo backend auth-server frontend selenium-chrome
+                    compose -f docker-compose.yml -f docker-compose.selenium.yml -p capstone-selenium run --build --rm selenium-tests
                 '''
             }
         }

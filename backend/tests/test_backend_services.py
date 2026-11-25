@@ -2,7 +2,9 @@
 import sys
 import tempfile
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 if str(BACKEND_DIR) not in sys.path:
@@ -13,7 +15,7 @@ os.environ.pop("DATABASE_URL", None)
 import pandas as pd
 from pydantic import ValidationError
 
-from config import settings
+from config import Settings, settings
 from models.request_models import FeedbackRequest, GitHubRepoRequest, PredictionRequest
 from services.feedback_service import FeedbackService
 from services.metric_extraction_service import MetricExtractionService
@@ -59,6 +61,18 @@ class RequestValidationTests(unittest.TestCase):
 
         with self.assertRaises(ValidationError):
             FeedbackRequest(rating=4, message="   ")
+
+
+class SettingsTests(unittest.TestCase):
+    def test_blank_prediction_history_path_uses_default(self):
+        expected_path = os.path.join(
+            str(BACKEND_DIR), "data", "prediction_history.db"
+        )
+
+        with patch.dict(os.environ, {"PREDICTION_HISTORY_DB_PATH": ""}):
+            configured = Settings()
+
+        self.assertEqual(configured.prediction_history_db_path, expected_path)
 
 
 class MetricExtractionTests(unittest.TestCase):
@@ -144,8 +158,17 @@ class FeedbackServiceTests(unittest.TestCase):
     def test_feedback_is_saved_and_listed_newest_first(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             service = FeedbackService(str(Path(temp_dir) / "feedback.db"))
-            first = service.create_feedback("Alice", "Student", 4, "The dashboard is clear")
-            second = service.create_feedback("Bob", "Developer", 5, "The feedback page works")
+            with patch("services.feedback_service.datetime") as clock:
+                clock.now.side_effect = [
+                    datetime(2026, 1, 1, tzinfo=timezone.utc),
+                    datetime(2026, 1, 2, tzinfo=timezone.utc),
+                ]
+                first = service.create_feedback(
+                    "Alice", "Student", 4, "The dashboard is clear"
+                )
+                second = service.create_feedback(
+                    "Bob", "Developer", 5, "The feedback page works"
+                )
 
             feedback = service.list_feedback()
 

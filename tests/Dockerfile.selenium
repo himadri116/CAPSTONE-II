@@ -1,0 +1,10 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY tests/requirements-selenium.txt requirements.txt
+RUN python -m pip install --no-cache-dir -r requirements.txt
+
+COPY tests/selenium ./tests/selenium
+
+CMD ["python", "-m", "unittest", "discover", "-s", "tests/selenium", "-p", "test_*.py", "-v"]

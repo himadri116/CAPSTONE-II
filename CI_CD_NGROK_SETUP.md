@@ -22,8 +22,8 @@ This guide explains how to set up **Jenkins** (Continuous Integration & Automate
 +-----------------------------+               +----------------------------------+
 |    Jenkins CI/CD Server     | <-------------+  Localhost Jenkins (Port 8085)   |
 |  - Runs Jenkinsfile         |               |  - Pulls code                    |
-|  - Tests Python ML backend  |               |  - Builds Docker images          |
-|  - Builds Vite Frontend     |               |  - Auto-restarts containers      |
+|  - Builds Docker images     |               |  - Deploys application           |
+|  - Checks Nginx TLS config  |               |  - Starts MongoDB and services   |
 +-----------------------------+               +----------------------------------+
 ```
 
@@ -34,10 +34,12 @@ This guide explains how to set up **Jenkins** (Continuous Integration & Automate
 Jenkins is pre-configured in your `docker-compose.yml`.
 
 ### Step 1: Start the Jenkins container
-Run in your PowerShell terminal:
+The Compose file requires a non-empty `JWT_SECRET` even when starting only Jenkins. Ensure the project `.env` exists and has a long random `JWT_SECRET` before running:
 ```powershell
-docker compose up -d jenkins
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
+docker compose up -d --build jenkins
 ```
+If you created `.env` from the template, edit it and set `JWT_SECRET` before running Compose. Do not overwrite an existing `.env`.
 
 ### Step 2: Retrieve the Initial Admin Password
 When Jenkins starts for the first time, it generates a security token. Run:
@@ -54,6 +56,7 @@ docker exec bugsight-jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 2. Paste the administrator password and click **Continue**.
 3. Select **Install suggested plugins** (installs Git, Pipeline, Workspace Cleanup, etc.).
 4. Create an Admin user (e.g. `admin` / `password123`) and click **Save and Finish**.
+5. Confirm the **Credentials Binding** plugin is installed; the pipeline uses Jenkins secret-text and secret-file credentials.
 
 ---
 
@@ -72,9 +75,48 @@ docker exec bugsight-jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 5. Click **Save**.
 6. Click **Build Now** to run your first automated build!
 
+## 4. Local HTTPS for the Dockerized app
+
+The frontend Nginx container serves the app over HTTPS on `https://localhost:8443` and proxies authentication and scanner API calls to the internal Docker services. HTTP on `http://localhost:3000` remains available for local compatibility and ngrok. Jenkins itself remains on HTTP at port `8085`.
+
+Create a trusted localhost certificate if you have not already created one:
+
+```powershell
+Set-Location frontend
+mkcert -install
+New-Item -ItemType Directory -Force certs | Out-Null
+mkcert -cert-file certs/localhost.pem -key-file certs/localhost-key.pem localhost 127.0.0.1 ::1
+Set-Location ..
+```
+
+For a direct Docker Compose run, set a non-empty `JWT_SECRET` in the project `.env`, copy the local certificate into the Docker volume, then start the app:
+
+```powershell
+docker compose --profile local-tls run --rm tls-cert-init
+docker compose up -d --build mongo backend auth-server frontend
+```
+
+Open `https://localhost:8443`.
+
+For Jenkins deployments, add these credentials in **Manage Jenkins → Credentials → System → Global credentials**. The IDs must match exactly:
+
+| Credential ID | Kind | Value |
+| --- | --- | --- |
+| `bugsight-jwt-secret` | Secret text | A long random JWT signing secret |
+| `bugsight-localhost-cert` | Secret file | `frontend/certs/localhost.pem` |
+| `bugsight-localhost-key` | Secret file | `frontend/certs/localhost-key.pem` |
+
+Set the JWT credential to the same value as the project `.env` `JWT_SECRET`. The pipeline copies the certificate and key from Jenkins credentials into a Docker named volume mounted read-only by Nginx; it does not commit them or bake the key into the image. Add `https://localhost:8443` to the Google OAuth web client's authorized JavaScript origins if Google sign-in is needed. The local mkcert certificate is trusted only on machines where its local CA is installed; do not use it as a public production certificate.
+
+### Selenium browser-test stage
+
+After deploying and smoke-testing the application, Jenkins runs the existing authentication Selenium suite in the **Selenium UI Tests** stage. It starts a separate Compose project with a Chrome WebDriver container and its own MongoDB volume/database, so test signups do not write to the deployed application's database. The test runner opens `https://frontend` inside the Docker network and accepts the local certificate only for this automated test session. Selenium output and individual test results appear in the Jenkins build console; no Chrome installation is needed in the Jenkins container.
+
+The test stage builds the `tests/Dockerfile.selenium` runner image and uses `selenium/standalone-chrome`. It requires the same Docker socket access, JWT credential, and TLS credentials configured above. On success or failure, Jenkins stops the temporary Selenium application containers; the separate test database volume is retained between builds.
+
 ---
 
-## 4. Setting Up ngrok for GitHub Webhooks (Automatic Build on Git Push)
+## 5. Setting Up ngrok for GitHub Webhooks (Automatic Build on Git Push)
 
 GitHub cannot access `localhost:8080` on your computer directly. **ngrok** provides a public HTTPS URL that connects GitHub to your local Jenkins.
 
@@ -118,7 +160,7 @@ View the public tunnel URL at: **[http://localhost:4040](http://localhost:4040)*
 
 ---
 
-## 5. Exposing BugSight for Live Demos (To Professors / Evaluators)
+## 6. Exposing BugSight for Live Demos (To Professors / Evaluators)
 
 If you want to demo BugSight on mobile or send a live link to someone outside your Wi-Fi network:
 

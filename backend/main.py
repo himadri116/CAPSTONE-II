@@ -5,11 +5,16 @@ from io import StringIO
 from typing import Optional
 
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Header, Depends
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, Response
+from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.openapi.utils import get_openapi
+from fastapi.responses import FileResponse, HTMLResponse, Response
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.staticfiles import StaticFiles
 
 from config import settings
+from openapi_auth import add_auth_operations
 
 from models.request_models import (
     PredictionRequest,
@@ -17,23 +22,31 @@ from models.request_models import (
     GitRefListRequest,
     ExportReportRequest,
     FeedbackRequest,
-    GoogleAuthRequest,
-    SendOtpRequest,
-    VerifyOtpRequest,
 )
 from services.defect_prediction_pipeline import DefectPredictionPipeline
 from services.feedback_service import FeedbackService
 from services.prediction_job_service import PredictionJobService
 from services.prediction_history_service import PredictionHistoryService
 from services.auth_service import auth_service
-from services.mongo_service import mongo_service
 
 
 app = FastAPI(
     title="BugSight Backend",
     description="Backend API for AI-based software defect prediction",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url=None,
+    openapi_tags=[
+        {"name": "Health", "description": "Service and model health."},
+        {"name": "Authentication", "description": "Account registration, login, and password recovery."},
+        {"name": "Repositories", "description": "Browse GitHub branches, tags, and commits."},
+        {"name": "Predictions", "description": "Start and monitor repository defect predictions."},
+        {"name": "History", "description": "Review saved prediction results."},
+        {"name": "Reports", "description": "Export results and inspect model transparency."},
+        {"name": "Feedback", "description": "Submit and view application feedback."},
+    ],
 )
+
+bearer_scheme = HTTPBearer(scheme_name="BearerAuth", auto_error=False)
 
 app.add_middleware(
     CORSMiddleware,
@@ -54,6 +67,35 @@ prediction_jobs = PredictionJobService(
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(BASE_DIR)
 ML_WORKSPACE_DIR = settings.ml_workspace_dir
+app.mount(
+    "/docs-assets",
+    StaticFiles(directory=os.path.join(BASE_DIR, "static")),
+    name="docs-assets",
+)
+
+
+@app.get("/docs", include_in_schema=False)
+def swagger_ui():
+    html = get_swagger_ui_html(
+        openapi_url=app.openapi_url,
+        title=f"{app.title} - Swagger UI",
+        swagger_ui_parameters={"persistAuthorization": False},
+    ).body.decode("utf-8")
+    config_marker = "<script>\n    const ui = SwaggerUIBundle({"
+    custom_scripts = (
+        f"<script>window.BUGSIGHT_AUTH_API_URL = {json.dumps(settings.auth_api_url)};</script>\n"
+        '<script src="/docs-assets/swagger-login.js"></script>\n'
+    )
+    if config_marker not in html:
+        raise RuntimeError("Could not inject the Swagger login helper.")
+
+    html = html.replace(config_marker, custom_scripts + config_marker, 1)
+    html = html.replace(
+        "</head>",
+        '<link rel="stylesheet" href="/docs-assets/swagger-login.css">\n    </head>',
+        1,
+    )
+    return HTMLResponse(content=html)
 
 
 @app.get("/")
@@ -74,66 +116,44 @@ def favicon():
 
 
 # Authentication Dependency
-async def get_current_user(authorization: Optional[str] = Header(None)):
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Authentication required")
-    token = authorization.split(" ")[1]
-    user = auth_service.verify_token(token)
+async def get_current_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
+):
+    if len(settings.jwt_secret) < 16:
+        raise HTTPException(
+            status_code=503,
+            detail="Authentication is not configured. Set the shared JWT_SECRET in both services.",
+        )
+    if credentials is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Authentication required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    user = auth_service.verify_token(credentials.credentials)
     if not user:
-        raise HTTPException(status_code=401, detail="Invalid or expired session token")
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired session token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return user
 
 
-# Authentication Endpoints
-@app.get("/api/auth/config")
-def get_auth_config():
+@app.get("/api/auth/me", tags=["Authentication"])
+def get_me(current_user: dict = Depends(get_current_user)):
     return {
-        "google_client_id": settings.google_client_id,
-        "dev_auth": settings.dev_auth,
-        "mongo_connected": mongo_service.is_connected()
+        "user": {
+            "id": current_user.get("id"),
+            "name": current_user.get("name", ""),
+            "email": current_user.get("email", ""),
+            "avatar": current_user.get("avatar"),
+            "authProvider": current_user.get("authProvider")
+            or current_user.get("auth_provider", "local"),
+        }
     }
 
-
-@app.post("/api/auth/google")
-async def google_login(payload: GoogleAuthRequest):
-    ok, msg, user, token = await auth_service.verify_google_and_login(payload.credential)
-    if not ok:
-        raise HTTPException(status_code=400, detail=msg)
-    return {"message": msg, "user": user, "token": token}
-
-
-@app.post("/api/auth/otp/send")
-def send_otp(payload: SendOtpRequest):
-    ok, msg, dev_code = auth_service.send_otp(payload.email)
-    if not ok:
-        raise HTTPException(status_code=400, detail=msg)
-    res = {"success": True, "message": msg}
-    if dev_code:
-        res["dev_otp"] = dev_code
-    return res
-
-
-@app.post("/api/auth/otp/verify")
-def verify_otp(payload: VerifyOtpRequest):
-    ok, msg, user, token = auth_service.verify_otp_and_login(payload.email, payload.otp)
-    if not ok:
-        raise HTTPException(status_code=400, detail=msg)
-    return {"message": msg, "user": user, "token": token}
-
-
-@app.post("/api/auth/demo")
-def demo_login():
-    if not settings.dev_auth:
-        raise HTTPException(status_code=403, detail="Demo login is disabled in this environment")
-    ok, msg, user, token = auth_service.demo_login()
-    return {"message": msg, "user": user, "token": token}
-
-
-@app.get("/api/auth/me")
-def get_me(current_user: dict = Depends(get_current_user)):
-    return current_user
-
-@app.get("/health")
+@app.get("/health", tags=["Health"])
 def health_check():
     required_model_files = {
         "model": pipeline.prediction_service.model_path,
@@ -162,7 +182,7 @@ def health_check():
     }
 
 
-@app.post("/predict")
+@app.post("/predict", tags=["Predictions"], dependencies=[Depends(get_current_user)])
 def predict_defect(request: PredictionRequest):
     try:
         _validate_clone_mode(request.use_personal_access_token)
@@ -196,7 +216,11 @@ def predict_defect(request: PredictionRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/prediction-jobs")
+@app.post(
+    "/prediction-jobs",
+    tags=["Predictions"],
+    dependencies=[Depends(get_current_user)],
+)
 def start_prediction_job(request: PredictionRequest):
     try:
         _validate_clone_mode(request.use_personal_access_token)
@@ -214,7 +238,11 @@ def start_prediction_job(request: PredictionRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/prediction-jobs/{job_id}")
+@app.get(
+    "/prediction-jobs/{job_id}",
+    tags=["Predictions"],
+    dependencies=[Depends(get_current_user)],
+)
 def get_prediction_job(job_id: str):
     job = prediction_jobs.get_job(job_id)
 
@@ -225,7 +253,11 @@ def get_prediction_job(job_id: str):
 
 
 
-@app.post("/prediction-jobs/{job_id}/cancel")
+@app.post(
+    "/prediction-jobs/{job_id}/cancel",
+    tags=["Predictions"],
+    dependencies=[Depends(get_current_user)],
+)
 def cancel_prediction_job(job_id: str):
     job = prediction_jobs.cancel_job(job_id)
 
@@ -234,14 +266,23 @@ def cancel_prediction_job(job_id: str):
 
     return job
 
-@app.get("/prediction-history")
+@app.get(
+    "/prediction-history",
+    tags=["History"],
+    dependencies=[Depends(get_current_user)],
+    description="Lists completed prediction history shared among signed-in users.",
+)
 def list_prediction_history():
     return {
         "history": prediction_history.list_predictions()
     }
 
 
-@app.get("/prediction-history/{history_id}")
+@app.get(
+    "/prediction-history/{history_id}",
+    tags=["History"],
+    dependencies=[Depends(get_current_user)],
+)
 def get_prediction_history_item(history_id: str):
     prediction = prediction_history.get_prediction(history_id)
 
@@ -251,7 +292,11 @@ def get_prediction_history_item(history_id: str):
     return prediction
 
 
-@app.delete("/prediction-history/{history_id}")
+@app.delete(
+    "/prediction-history/{history_id}",
+    tags=["History"],
+    dependencies=[Depends(get_current_user)],
+)
 def delete_prediction_history_item(history_id: str):
     if not settings.allow_history_delete:
         raise HTTPException(
@@ -269,14 +314,14 @@ def delete_prediction_history_item(history_id: str):
     }
 
 
-@app.get("/feedback")
+@app.get("/feedback", tags=["Feedback"], dependencies=[Depends(get_current_user)])
 def list_feedback():
     return {
         "feedback": feedback_service.list_feedback()
     }
 
 
-@app.post("/feedback")
+@app.post("/feedback", tags=["Feedback"], dependencies=[Depends(get_current_user)])
 def create_feedback(request: FeedbackRequest):
     try:
         feedback = feedback_service.create_feedback(
@@ -292,7 +337,7 @@ def create_feedback(request: FeedbackRequest):
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error))
 
-@app.post("/export-report")
+@app.post("/export-report", tags=["Reports"], dependencies=[Depends(get_current_user)])
 def export_report(request: ExportReportRequest):
     output = StringIO()
     writer = csv.writer(output)
@@ -367,7 +412,11 @@ def export_report(request: ExportReportRequest):
     )
 
 
-@app.get("/model-transparency")
+@app.get(
+    "/model-transparency",
+    tags=["Reports"],
+    dependencies=[Depends(get_current_user)],
+)
 def get_model_transparency():
     comparison_path = os.path.join(
         ML_WORKSPACE_DIR,
@@ -432,7 +481,7 @@ def get_model_transparency():
         ]
     }
     
-@app.post("/commits")
+@app.post("/commits", tags=["Repositories"], dependencies=[Depends(get_current_user)])
 def get_commits(request: CommitListRequest):
     try:
         _validate_clone_mode(request.use_personal_access_token)
@@ -459,7 +508,7 @@ def get_commits(request: CommitListRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-@app.post("/branches")
+@app.post("/branches", tags=["Repositories"], dependencies=[Depends(get_current_user)])
 def get_branches(request: GitRefListRequest):
     try:
         _validate_clone_mode(request.use_personal_access_token)
@@ -481,7 +530,7 @@ def get_branches(request: GitRefListRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/tags")
+@app.post("/tags", tags=["Repositories"], dependencies=[Depends(get_current_user)])
 def get_tags(request: GitRefListRequest):
     try:
         _validate_clone_mode(request.use_personal_access_token)
@@ -569,6 +618,25 @@ def _build_dataset_summary(path: str) -> dict:
         "repositories": repositories,
         "languages": languages
     }
+
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    schema = get_openapi(
+        title=app.title,
+        version=app.version,
+        description=app.description,
+        routes=app.routes,
+        tags=app.openapi_tags,
+    )
+    schema = add_auth_operations(schema, settings.auth_api_url)
+    app.openapi_schema = schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
 
 
 

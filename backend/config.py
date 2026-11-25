@@ -18,10 +18,14 @@ class Settings:
         self.mongodb_url = (
             os.getenv("MONGODB_URI") or
             os.getenv("MONGODB_URL") or
-            "mongodb://mongo:27017/bugsight"
+            "mongodb://127.0.0.1:27018/bugsight"
         ).strip()
-        self.jwt_secret = os.getenv("JWT_SECRET", "bugsight_secret_jwt_key_development_2026").strip()
+        self.jwt_secret = os.getenv("JWT_SECRET", "").strip()
         self.jwt_expires_days = self._parse_int_env("JWT_EXPIRES_DAYS", 7)
+        self.auth_api_url = os.getenv(
+            "AUTH_API_URL",
+            "http://localhost:5000"
+        ).strip().rstrip("/")
         self.google_client_id = os.getenv("GOOGLE_CLIENT_ID", "").strip()
         self.dev_auth = self._parse_bool_env("DEV_AUTH", True)
 
@@ -32,8 +36,9 @@ class Settings:
 
         self.database_url = os.getenv("DATABASE_URL", "").strip()
         self.prediction_history_db_path = os.getenv(
-            "PREDICTION_HISTORY_DB_PATH",
-            os.path.join(self.backend_dir, "data", "prediction_history.db")
+            "PREDICTION_HISTORY_DB_PATH", ""
+        ).strip() or os.path.join(
+            self.backend_dir, "data", "prediction_history.db"
         )
         self.temp_repo_dir = os.getenv("SDP_TEMP_REPO_DIR")
         self.allow_local_cache_mode = self._parse_bool_env(

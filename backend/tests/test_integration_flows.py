@@ -12,6 +12,7 @@ if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
 os.environ.pop("DATABASE_URL", None)
+os.environ.setdefault("JWT_SECRET", "integration-test-shared-secret-for-tests-12345")
 
 from fastapi.testclient import TestClient
 
@@ -71,6 +72,11 @@ class ApiStorageIntegrationTests(unittest.TestCase):
         self.history_service = PredictionHistoryService(self.db_path)
         self.feedback_service = FeedbackService(self.db_path)
         self.client = TestClient(main.app)
+        main.app.dependency_overrides[main.get_current_user] = lambda: {
+            "id": "integration-test-user",
+            "email": "integration@example.com",
+            "name": "Integration Tester",
+        }
 
         self.history_patch = patch.object(
             main,
@@ -86,6 +92,7 @@ class ApiStorageIntegrationTests(unittest.TestCase):
         self.feedback_patch.start()
 
     def tearDown(self):
+        main.app.dependency_overrides.pop(main.get_current_user, None)
         self.feedback_patch.stop()
         self.history_patch.stop()
         self.temp_dir.cleanup()
@@ -170,6 +177,71 @@ class ApiStorageIntegrationTests(unittest.TestCase):
         self.assertEqual(len(file_rows), 2)
         self.assertEqual(file_rows[0][4], "High")
         self.assertEqual(file_rows[1][15], "True")
+
+    def test_scanner_routes_require_authentication_and_health_stays_public(self):
+        configured_secret = settings.jwt_secret
+        settings.jwt_secret = "integration-test-shared-secret-for-tests-12345"
+        main.app.dependency_overrides.pop(main.get_current_user, None)
+        try:
+            history_response = self.client.get("/prediction-history")
+            feedback_response = self.client.get("/feedback")
+            health_response = self.client.get("/health")
+        finally:
+            settings.jwt_secret = configured_secret
+
+        self.assertEqual(history_response.status_code, 401)
+        self.assertEqual(history_response.headers["www-authenticate"], "Bearer")
+        self.assertEqual(feedback_response.status_code, 401)
+        self.assertEqual(health_response.status_code, 200)
+
+    def test_openapi_combines_auth_endpoints_and_protects_scanner_operations(self):
+        schema = self.client.get("/openapi.json").json()
+
+        self.assertIn("/api/auth/login", schema["paths"])
+        self.assertIn("/api/auth/forgot-password", schema["paths"])
+        self.assertEqual(
+            schema["paths"]["/api/auth/login"]["servers"][0]["url"],
+            settings.auth_api_url,
+        )
+        protected_operations = {
+            "/api/auth/me": ("get",),
+            "/predict": ("post",),
+            "/prediction-jobs": ("post",),
+            "/prediction-jobs/{job_id}": ("get",),
+            "/prediction-jobs/{job_id}/cancel": ("post",),
+            "/prediction-history": ("get",),
+            "/prediction-history/{history_id}": ("get", "delete"),
+            "/feedback": ("get", "post"),
+            "/export-report": ("post",),
+            "/model-transparency": ("get",),
+            "/commits": ("post",),
+            "/branches": ("post",),
+            "/tags": ("post",),
+        }
+        for path, methods in protected_operations.items():
+            for method in methods:
+                self.assertEqual(
+                    schema["paths"][path][method]["security"],
+                    [{"BearerAuth": []}],
+                    f"{method.upper()} {path} should require Bearer auth",
+                )
+        self.assertIn(
+            "BearerAuth",
+            schema["components"]["securitySchemes"],
+        )
+        self.assertNotIn(
+            "security",
+            schema["paths"]["/api/auth/login"]["post"],
+        )
+        self.assertNotIn("security", schema["paths"]["/health"]["get"])
+
+    def test_swagger_page_loads_the_login_prompt_for_the_combined_api(self):
+        response = self.client.get("/docs")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("/openapi.json", response.text)
+        self.assertIn("/docs-assets/swagger-login.js", response.text)
+        self.assertIn("BUGSIGHT_AUTH_API_URL", response.text)
 
 
 class PredictionProcessingIntegrationTests(unittest.TestCase):

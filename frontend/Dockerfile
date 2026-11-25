@@ -11,10 +11,10 @@ RUN npm install
 COPY . .
 
 # Build arguments for Vite environment variables
-ARG VITE_API_BASE_URL=http://localhost:8001
+ARG VITE_API_BASE_URL=/api/scan
 ARG VITE_ENABLE_LOCAL_CACHE_MODE=true
 ARG VITE_ENABLE_HISTORY_DELETE=true
-ARG VITE_AUTH_API_URL=http://localhost:5000
+ARG VITE_AUTH_API_URL=
 ARG VITE_GOOGLE_CLIENT_ID=402610411923-g3r7t82ht7tes01ofn6a838tsb1oct64.apps.googleusercontent.com
 
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
@@ -35,6 +35,6 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy custom Nginx configuration for client-side routing
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
+EXPOSE 80 443
 
 CMD ["nginx", "-g", "daemon off;"]
