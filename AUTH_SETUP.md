@@ -36,13 +36,25 @@ In Docker, the frontend is available over HTTP at `http://localhost:3000` and HT
 
    Put the **same** value in `JWT_SECRET` in the project `.env`, `server\.env`, and `backend\.env`. Do not use the example placeholder or commit the real `.env` files.
 
-3. Keep the MongoDB settings aligned: both `server\.env` and `backend\.env` should use `mongodb://127.0.0.1:27018/bugsight`. The Docker Compose MongoDB service publishes this local port:
+3. Keep both services pointed at the same MongoDB database. For services run directly on your computer, set `MONGODB_URI` in both `server\.env` and `backend\.env` to `mongodb://127.0.0.1:27018/bugsight`. The Docker Compose MongoDB service publishes this local port:
 
    ```powershell
    docker compose up -d mongo
    ```
 
-   You can use a MongoDB Atlas URI instead, but use the same database in both services.
+   For Docker Compose, set `MONGODB_URI` once in the project-root `.env`; Compose passes it to both the auth server and backend. For Atlas, use its connection string with the `bugsight` database, for example:
+
+   ```env
+   MONGODB_URI=mongodb+srv://<database-user>:<url-encoded-password>@<cluster-host>/<database-name>?retryWrites=true&w=majority
+   ```
+
+   Use the database name where your existing app accounts are stored (changing it connects to a different database). Configure Atlas Network Access to allow the machine running the app and give the database user read/write access to that database. Keep the URI private and never commit `.env`. After changing it, recreate the app services:
+
+   ```powershell
+   docker compose up -d --force-recreate backend auth-server
+   ```
+
+   If `MONGODB_URI` is empty or unset, Docker Compose continues to use its local MongoDB service.
 
 4. Configure optional providers:
    - Google: set the same OAuth web client ID in `GOOGLE_CLIENT_ID` in `server\.env` and `VITE_GOOGLE_CLIENT_ID` in `frontend\.env`. Add `http://localhost:5173` and, if using local HTTPS, `https://localhost:5173` to the Google client's authorized JavaScript origins. For Docker, set `GOOGLE_CLIENT_ID` in the project `.env` and add `https://localhost:8443` (or `http://localhost:3000` for HTTP) to the authorized origins.

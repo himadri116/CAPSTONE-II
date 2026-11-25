@@ -104,10 +104,11 @@ For Jenkins deployments, add these credentials in **Manage Jenkins → Credentia
 | Credential ID | Kind | Value |
 | --- | --- | --- |
 | `bugsight-jwt-secret` | Secret text | A long random JWT signing secret |
+| `bugsight-mongodb-uri` | Secret text | MongoDB Atlas URI for the same application database used by the local app |
 | `bugsight-localhost-cert` | Secret file | `frontend/certs/localhost.pem` |
 | `bugsight-localhost-key` | Secret file | `frontend/certs/localhost-key.pem` |
 
-Set the JWT credential to the same value as the project `.env` `JWT_SECRET`. The pipeline copies the certificate and key from Jenkins credentials into a Docker named volume mounted read-only by Nginx; it does not commit them or bake the key into the image. Add `https://localhost:8443` to the Google OAuth web client's authorized JavaScript origins if Google sign-in is needed. The local mkcert certificate is trusted only on machines where its local CA is installed; do not use it as a public production certificate.
+Set the JWT credential to the same value as the project `.env` `JWT_SECRET`. The pipeline uses the Atlas URI credential for the deployed app; Selenium tests override it to use their isolated local MongoDB database. The pipeline copies the certificate and key from Jenkins credentials into a Docker named volume mounted read-only by Nginx; it does not commit them or bake the key into the image. Add `https://localhost:8443` to the Google OAuth web client's authorized JavaScript origins if Google sign-in is needed. The local mkcert certificate is trusted only on machines where its local CA is installed; do not use it as a public production certificate.
 
 ### Selenium browser-test stage
 

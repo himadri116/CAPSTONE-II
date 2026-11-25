@@ -10,6 +10,7 @@ pipeline {
         COMPOSE_DOCKER_CLI_BUILD = '1'
         DOCKER_BUILDKIT = '1'
         JWT_SECRET = credentials('bugsight-jwt-secret')
+        MONGODB_URI = credentials('bugsight-mongodb-uri')
     }
 
     stages {
@@ -126,6 +127,7 @@ pipeline {
                     }
 
                     export MONGODB_DATABASE=bugsight_selenium_test
+                    export MONGODB_URI=mongodb://mongo:27017/bugsight_selenium_test
                     export MONGO_HOST_PORT=27028
                     export BACKEND_HOST_PORT=18001
                     export AUTH_HOST_PORT=15000
