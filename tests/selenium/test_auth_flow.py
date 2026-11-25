@@ -11,6 +11,16 @@ from selenium.webdriver.support.ui import WebDriverWait
 BASE_URL = os.getenv("BUGSIGHT_BASE_URL", "http://localhost:5173").rstrip("/")
 
 
+
+
+
+
+
+
+
+
+
+
 class AuthenticationBrowserTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
