@@ -55,8 +55,8 @@ docker exec bugsight-jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 1. Open your browser to: **[http://localhost:8085](http://localhost:8085)**.
 2. Paste the administrator password and click **Continue**.
 3. Select **Install suggested plugins** (installs Git, Pipeline, Workspace Cleanup, etc.).
-4. Create an Admin user (e.g. `admin` / `password123`) and click **Save and Finish**.
-5. Confirm the **Credentials Binding** plugin is installed; the pipeline uses Jenkins secret-text and secret-file credentials.
+4. Create an Admin user with a strong, unique password and click **Save and Finish**. Do not use default or example credentials, especially before exposing Jenkins through ngrok.
+5. Confirm the **Credentials Binding** and **GitHub** plugins are installed; the pipeline uses secret-text and secret-file credentials, and GitHub provides the webhook trigger.
 
 ---
 
@@ -70,10 +70,11 @@ docker exec bugsight-jenkins cat /var/jenkins_home/secrets/initialAdminPassword
    - Change **Definition** from *Pipeline script* to **Pipeline script from SCM**.
    - **SCM**: Select **Git**.
    - **Repository URL**: `https://github.com/himadri116/CAPSTONE-II.git`
-   - **Branch Specifier**: `*/shivanshi` (or `*/main`).
+   - **Branch Specifier**: `*/himadri` (or the branch you intend to build).
    - **Script Path**: `Jenkinsfile` (already included in your repo root).
-5. Click **Save**.
-6. Click **Build Now** to run your first automated build!
+5. Under **Build Triggers**, select **GitHub hook trigger for GITScm polling**.
+6. Click **Save**.
+7. Click **Build Now** to run your first automated build!
 
 ## 4. Local HTTPS for the Dockerized app
 
@@ -142,11 +143,11 @@ Add your `NGROK_AUTHTOKEN` to `.env`:
 ```env
 NGROK_AUTHTOKEN=your_actual_token_here
 ```
-Run:
+The Docker tunnel forwards to Jenkins on the internal Docker network. Start it with:
 ```powershell
-docker compose up -d ngrok
+docker compose --profile ngrok up -d ngrok
 ```
-View the public tunnel URL at: **[http://localhost:4040](http://localhost:4040)**.
+View the public Jenkins tunnel URL at: **[http://localhost:4040](http://localhost:4040)**. The application remains available locally at `http://localhost:3000` and `https://localhost:8443`.
 
 ### Connect ngrok to GitHub Webhooks
 1. Open your GitHub Repository: `https://github.com/himadri116/CAPSTONE-II`
@@ -156,7 +157,9 @@ View the public tunnel URL at: **[http://localhost:4040](http://localhost:4040)*
 5. **Which events**: Select *Just the push event*.
 6. Click **Add webhook**.
 
-*Now, every time you push a commit, GitHub will automatically trigger Jenkins to build and test your project!*
+In **Recent Deliveries**, use **Redeliver** to verify GitHub receives a successful response. Then push a commit to the branch configured in the Jenkins job; the build should appear in Jenkins **Build History**.
+
+*With the GitHub plugin installed, the job trigger enabled, and the webhook delivered successfully, pushes to the configured branch start a Jenkins build.*
 
 ---
 
@@ -165,7 +168,9 @@ View the public tunnel URL at: **[http://localhost:4040](http://localhost:4040)*
 If you want to demo BugSight on mobile or send a live link to someone outside your Wi-Fi network:
 
 ```powershell
+docker compose --profile ngrok stop ngrok
 ngrok http 3000
 ```
 - Send the generated HTTPS link (`https://xxxx.ngrok-free.app`) to your evaluator.
 - They will be able to view and interact with the full BugSight UI directly from their browser!
+- The Docker ngrok tunnel is reserved for Jenkins webhooks; stop it before using the ngrok CLI to avoid duplicate endpoint or agent-session conflicts.

@@ -134,11 +134,11 @@ services:
       - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-}
     command:
       - "http"
-      - "frontend:80"
+      - "jenkins:8080"
     ports:
       - "4040:4040"
     depends_on:
-      - frontend
+      - jenkins
 
 volumes:
   prediction_data:
